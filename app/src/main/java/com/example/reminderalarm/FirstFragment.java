@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.NumberPicker;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -25,19 +26,12 @@ public class FirstFragment extends Fragment {
 
         binding = FragmentFirstBinding.inflate(inflater, container, false);
 
-        MainActivity mainActivity = (MainActivity) getActivity();
-        // 첫 화면 진입 시 캘린더 가지는 계정 찾기
-        List<CalendarCoreInfo> calendarCoreInfoList = mainActivity.calendarQuery();
-
-        // 캘린더 가져온 후에 이벤트 가져오기
-        mainActivity.eventQuery(calendarCoreInfoList);
-
         return binding.getRoot();
-
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
 
         binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,6 +43,25 @@ public class FirstFragment extends Fragment {
 
             }
         });
+
+        /* N시간 수면 numberPicker 시간, 분 범위 설정 */
+        NumberPicker nSleepHourPicker = view.findViewById(R.id.nSleepHourPicker);
+        nSleepHourPicker.setMinValue(0);
+        nSleepHourPicker.setMaxValue(12);
+
+        NumberPicker nSleepMinPicker = view.findViewById(R.id.nSleepMinPicker);
+        nSleepMinPicker.setMinValue(0);
+        nSleepMinPicker.setMaxValue(59);
+
+
+
+
+        /* 이벤트 찾기 세트 */
+        // 첫 화면 진입 시 캘린더 가지는 계정 찾기
+        MainActivity mainActivity = (MainActivity) getActivity();
+        List<CalendarCoreInfo> calendarCoreInfoList = mainActivity.calendarQuery();
+        // 캘린더 가져온 후에 이벤트 가져오기
+        mainActivity.eventQuery(calendarCoreInfoList);
     }
 
     @Override
