@@ -1,9 +1,12 @@
 package com.example.reminderalarm;
 
+import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.media.metrics.Event;
 import android.net.Uri;
@@ -15,6 +18,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -23,6 +27,7 @@ import android.provider.CalendarContract.Calendars;
 import android.util.Log;
 import android.view.View;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -37,16 +42,8 @@ import android.view.MenuItem;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import java.text.DateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -58,36 +55,6 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
 
-
-
-
-
-    // 여러 퍼미션 요청하는 함수
-    private ActivityResultLauncher<String[]> requestMultiplePermissions = registerForActivityResult(
-            new ActivityResultContracts.RequestMultiplePermissions(),
-            new ActivityResultCallback<Map<String, Boolean>>() {
-                @Override
-                public void onActivityResult(Map<String, Boolean> result) {
-                    for (String s : result.keySet()) {
-                        Log.i("requested permission", s);
-                    }
-                    requestMultiplePermissions.unregister();
-                }
-            }
-    );
-
-    // 런타임 때 퍼미션 확인, 요청하는 함수
-    private void checkPermissions(int callbackId, String... permissionsId) {
-        boolean permissions = true;
-
-        for (String p : permissionsId) {
-            permissions = permissions && ContextCompat.checkSelfPermission(this, p) == PERMISSION_GRANTED;
-        }
-
-        if (!permissions) {
-            requestMultiplePermissions.launch(permissionsId);
-        }
-    }
 
 
     @Override
@@ -110,11 +77,6 @@ public class MainActivity extends AppCompatActivity {
 //                        .setAction("Action", null).show();
 //            }
 //        });
-
-
-        // 런타임 권한 요청
-        final int callbackId = 42;
-        checkPermissions(callbackId, Manifest.permission.READ_CALENDAR);
 
     }
 

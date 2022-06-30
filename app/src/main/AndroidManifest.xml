@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.reminderalarm">
+    <!-- 캘린더 읽기 권한 -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <!-- 정확한 시간에 알람 울릴 수 있는 권한 -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -12,6 +16,11 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:theme="@style/Theme.ReminderAlarm.NoActionBar"
+        />
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.ReminderAlarm.NoActionBar">
             <intent-filter>
@@ -20,30 +29,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-        <!-- exported true ? -->
-        <!--<service android:name=".MyAuthenticatorService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-            <meta-data android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
-        </service>-->
     </application>
-
-
-<!--    캘린더 권한 -->
-    <uses-permission android:name="android.permission.READ_CALENDAR" />
-<!--    <uses-permission android:name="android.permission.WRITE_CALENDAR" />-->
-
-    <!--    계정 인증 권한 -->
-    <!--<uses-permission android:name="android.permission.USE_CREDENTIALS"/>
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>-->
-
-
 
 </manifest>
