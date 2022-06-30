@@ -3,6 +3,7 @@ package com.example.reminderalarm;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -43,8 +44,8 @@ public class SplashActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (hasAllPermissions(this, permissions)) {
-            finish();
             startActivity(new Intent(this, MainActivity.class));
+            finish();
         } else {
             Toast.makeText(this, "앱의 정상적인 작동을 위해서는 캘린더 접근 권한이 필요합니다. 다시 실행 후 권한을 허용해주세요", Toast.LENGTH_SHORT).show();
         }
