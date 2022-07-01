@@ -22,7 +22,9 @@ public class SplashActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 1;
     private static final String[] PERMISSIONS = {
             Manifest.permission.READ_CALENDAR,
+            // 일반 권한이라 런타임 때 요청할 필요 없다
             // 이 권한은 환경설정 화면에서 설정 가능
+//            Manifest.permission.USE_FULL_SCREEN_INTENT,
 //            Manifest.permission.SCHEDULE_EXACT_ALARM,
     };
 
@@ -47,7 +49,7 @@ public class SplashActivity extends AppCompatActivity {
             startActivity(new Intent(this, MainActivity.class));
             finish();
         } else {
-            Toast.makeText(this, "앱의 정상적인 작동을 위해서는 캘린더 접근 권한이 필요합니다. 다시 실행 후 권한을 허용해주세요", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "앱의 정상적인 작동을 위해서는 접근 권한 허용이 필요합니다. 다시 실행 후 권한을 허용해주세요", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -55,7 +57,8 @@ public class SplashActivity extends AppCompatActivity {
     private void checkPermissions(String... permissions) {
         ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
 
-        /*if (!hasAllPermissions(this, permissions)) {
+        /*
+        if (!hasAllPermissions(this, permissions)) {
             ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
         } else {
             // SCHEDULE_EXACT_ALARM 제외하고 모두 권한이 승인됐을 때만 메인 액티비티 실행

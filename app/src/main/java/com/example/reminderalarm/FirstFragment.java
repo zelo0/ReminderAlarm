@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.AlarmManagerCompat;
@@ -38,7 +40,6 @@ public class FirstFragment extends Fragment {
     ) {
 
         binding = FragmentFirstBinding.inflate(inflater, container, false);
-
         return binding.getRoot();
     }
 
@@ -58,6 +59,24 @@ public class FirstFragment extends Fragment {
         });
 
 
+        // 시스템의 알람 서비스와 바인딩
+        alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+
+
+        // VERSION_CODES.S 이상일 때는 SCHEDULE_EXACT_ALARM이 있어야만 정확한 시간에 알람 가능 - 권한 설정돼있는 지 체크
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            // 정확한 알람 설정 권한 있는 지 체크
+            boolean hasAlarmPermission = false;
+
+            hasAlarmPermission = alarmManager.canScheduleExactAlarms();
+            // 해당 권한이 없으면 설정 화면으로 이동시킴
+            if (!hasAlarmPermission) {
+                Toast.makeText(getContext(), "정확한 시간에 알람이 울리기 위해서 권한을 허가해주세요", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                startActivity(intent);
+            }
+        }
 
         /* sharedPreferences */
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
@@ -70,6 +89,7 @@ public class FirstFragment extends Fragment {
 
 
         /* 알람 시간 보여주는 텍스트 설정 */
+        // getNextAlarmClock() 사용해서 변경하자
         setDailyAlarmText(dailyAlarmHourPreference, dailyAlarmMinutePreference);
 
 
@@ -93,12 +113,12 @@ public class FirstFragment extends Fragment {
 
 
                 /* 시스템에 매일 알람 예약 걸기 */
-                // 시스템의 알람 서비스와 바인딩
-                alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+
                 // 알람 intent
                 Intent intent = new Intent(getContext(), AlarmReceiver.class);
+                intent.setAction("com.example.reminderalarm.alarm");
                 // 기존의 인텐트가 있으면 제거 후 대체
-                alarmIntent = PendingIntent.getBroadcast(getContext(), AlarmReceiver.NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                alarmIntent = PendingIntent.getBroadcast(getContext(), AlarmReceiver.NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
 
                 /* 단발성 알람 시간 설정 로직 */
@@ -125,7 +145,7 @@ public class FirstFragment extends Fragment {
                 }
 
                 // 다음 알람 설정
-                // setRepeating()은 API 19 이상에서 정확하게 원하는 시간에 작동하지 않는다ㄴ
+                // setRepeating()은 API 19 이상에서 정확하게 원하는 시간에 작동하지 않는다
                 // setExact()로 정확히 알람 울리고 알람 울릴 때마다 다시 알람 예약 필요
                 alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(calendarByNextAlarmTime.getTimeInMillis(), alarmIntent), alarmIntent);
             }

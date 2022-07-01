@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.reminderalarm">
+    package="com.example.reminderalarm" >
+
     <!-- 캘린더 읽기 권한 -->
-    <uses-permission android:name="android.permission.READ_CALENDAR" />
-    <!-- 정확한 시간에 알람 울릴 수 있는 권한 -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" /> <!-- 정확한 시간에 알람 울릴 수 있는 권한 -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- 알람 발생 시 전체 화면으로 바로 띄울 수 있는 권한 -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" /> <!-- 잠금 화면에서도 깨울 수 있는 권한 -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -12,23 +14,55 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ReminderAlarm">
+        android:theme="@style/Theme.ReminderAlarm" >
+        <!-- 알람 서비스 (백그라운드) -->
+        <service
+            android:name=".AlarmService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
+        <activity
+            android:name=".AlarmRingActivity"
+            android:exported="true"
+            android:showForAllUsers="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true" />
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:theme="@style/Theme.ReminderAlarm.NoActionBar"
-        />
+            android:exported="false"
+            android:theme="@style/Theme.ReminderAlarm.NoActionBar" />
         <activity
             android:name=".SplashActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.ReminderAlarm.NoActionBar">
+            android:theme="@style/Theme.ReminderAlarm.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- alarm intent receiver -->
+        <receiver
+            android:name=".AlarmReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.example.reminderalarm.alarm" />
+            </intent-filter>
+        </receiver>
+
+        <!-- reboot 감지 - 폰 재시작 시 알람이 다 삭제되니 다시 설정 필요 -->
+        <receiver
+            android:name=".RebootReceiver"
+            android:directBootAware="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
