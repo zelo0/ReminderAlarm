@@ -7,15 +7,14 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 public class AlarmService extends Service {
-    private MediaPlayer mediaPlayer;
 
-    public AlarmService() {
-    }
+    private MediaPlayer mediaPlayer;
 
     @Nullable
     @Override
@@ -25,18 +24,18 @@ public class AlarmService extends Service {
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        // 알람 울릴 때 사용할 사운드
+        Uri bellUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
 
-        mediaPlayer = MediaPlayer.create(this, uri);
+        // mediaPlayer 생성
+        mediaPlayer = MediaPlayer.create(this, bellUri);
+
+        // 재생
         mediaPlayer.setVolume(50,50);
         mediaPlayer.setLooping(true);
         mediaPlayer.start();
+
         Toast.makeText(this, "ring ~ ring ~", Toast.LENGTH_SHORT).show();
         return super.onStartCommand(intent, flags, startId);
     }
@@ -45,6 +44,7 @@ public class AlarmService extends Service {
     public void onDestroy() {
         mediaPlayer.stop();
         mediaPlayer.release();
+        Toast.makeText(this, "알람을 종료했습니다.", Toast.LENGTH_SHORT);
         super.onDestroy();
     }
 }

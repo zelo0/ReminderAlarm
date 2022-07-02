@@ -6,11 +6,30 @@
     android:layout_height="match_parent"
     tools:context=".AlarmRingActivity">
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="RING~~"
-        tools:layout_editor_absoluteX="123dp"
-        tools:layout_editor_absoluteY="178dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextClock
+            android:id="@+id/clock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:format24Hour="hh:mm"
+            android:format12Hour="hh:mm"
+            android:textAlignment="center"
+            android:textSize="100dp"
+            android:textStyle="bold"
+            />
+
+        <Button
+            android:id="@+id/alarmStopBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:textSize="30dp"
+            android:text="알람 종료" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

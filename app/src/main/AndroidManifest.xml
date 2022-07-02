@@ -22,21 +22,22 @@
             android:exported="true" >
         </service>
 
+        <!-- 알람 울릴 시 화면 -->
         <activity
             android:name=".AlarmRingActivity"
             android:exported="true"
             android:showForAllUsers="true"
             android:showWhenLocked="true"
             android:turnScreenOn="true" />
+        <!-- 메인 화면 -->
         <activity
             android:name=".MainActivity"
-            android:exported="false"
-            android:theme="@style/Theme.ReminderAlarm.NoActionBar" />
+            android:exported="false" />
+        <!-- 권한 확인용 초기 팝업 화면 -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.ReminderAlarm.NoActionBar" >
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
