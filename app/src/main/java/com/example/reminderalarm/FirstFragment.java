@@ -1,24 +1,19 @@
 package com.example.reminderalarm;
 
-import android.app.AlarmManager;
+import android.app.AlarmManager.AlarmClockInfo;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.AlarmManagerCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.reminderalarm.databinding.FragmentFirstBinding;
 
@@ -28,10 +23,7 @@ import java.util.List;
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
-
-    private AlarmManager alarmManager;
-    private PendingIntent alarmIntent;
-
+    private AlarmUtil alarmUtil;
 
     @Override
     public View onCreateView(
@@ -46,37 +38,11 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 삭제 예정
-        binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                NavHostFragment.findNavController(FirstFragment.this)
-//                        .navigate(R.id.action_FirstFragment_to_SecondFragment);
-                // 캘린더 가지는 계정 찾는 쿼리
-                List<CalendarCoreInfo> calendarCoreInfos = ((MainActivity) getActivity()).calendarQuery();
+        alarmUtil = new AlarmUtil(getContext().getApplicationContext());
 
-            }
-        });
+        // canScheduleExactAlarms 권한이 취소되지 않았는지 체크
+        alarmUtil.checkIfCanScheduleExactAlarms();
 
-
-        // 시스템의 알람 서비스와 바인딩
-        alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-
-
-        // VERSION_CODES.S 이상일 때는 SCHEDULE_EXACT_ALARM이 있어야만 정확한 시간에 알람 가능 - 권한 설정돼있는 지 체크
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            // 정확한 알람 설정 권한 있는 지 체크
-            boolean hasAlarmPermission = false;
-
-            hasAlarmPermission = alarmManager.canScheduleExactAlarms();
-            // 해당 권한이 없으면 설정 화면으로 이동시킴
-            if (!hasAlarmPermission) {
-                Toast.makeText(getContext(), "정확한 시간에 알람이 울리기 위해서 권한을 허가해주세요", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-                startActivity(intent);
-            }
-        }
 
         /* sharedPreferences */
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
@@ -90,104 +56,69 @@ public class FirstFragment extends Fragment {
 
         /* 알람 시간 보여주는 텍스트 설정 */
         // getNextAlarmClock() 사용해서 변경하자
-        setDailyAlarmText(dailyAlarmHourPreference, dailyAlarmMinutePreference);
+        updateNextAlarmText();
 
 
         /* 매일 알람 시간 설정 */
         TimePicker dailyAlarmTimePicker = binding.dailyAlarmTimePicker;
         // 기존 설정 값 불러오기
-        dailyAlarmTimePicker.setHour(dailyAlarmHourPreference);
-        dailyAlarmTimePicker.setMinute(dailyAlarmMinutePreference);
-        // 리스너 등록
+        setTimeOfTimePicker(dailyAlarmHourPreference, dailyAlarmMinutePreference, dailyAlarmTimePicker);
+        // 매일 알람시간 타임피커 리스너 등록
         dailyAlarmTimePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-                SharedPreferences.Editor editor = sharedPref.edit();
-                // 설정 변경
-                editor.putInt(getString(R.string.dailyAlarmHour), hourOfDay);
-                editor.putInt(getString(R.string.dailyAlarmMinute), minute);
-                // 디스크에 비동기로 write
-                editor.apply();
-                // 가장 위에 있는 알람 시간 알려주는 텍스트에도 변경분 반영
-                setDailyAlarmText(hourOfDay, minute);
-
+                // 새로 설정한 시간 저장
+                saveChangedTimeInSharedPreference(hourOfDay, minute, sharedPref);
 
                 /* 시스템에 매일 알람 예약 걸기 */
 
-                // 알람 intent
-                Intent intent = new Intent(getContext(), AlarmReceiver.class);
-                intent.setAction("com.example.reminderalarm.alarm");
-                // 기존의 인텐트가 있으면 제거 후 대체
-                alarmIntent = PendingIntent.getBroadcast(getContext(), AlarmReceiver.NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-
-                /* 단발성 알람 시간 설정 로직 */
-                // 새로 변경한 알람 시간이 현재 시간보다 나중이라면 오늘 해당 시간에 알람 예약
-                // 새로 변경한 알람 시간이 현재 시간보다 이전이라면 다음날 해당 시간에 알람 예약
-
-                // 현재 시간
-                Calendar calendarByNow = Calendar.getInstance(); // 기본 타임존에 먖춰서
-
-                // 오늘의 (변경된 시간, 변경된 분)으로 설정된 epoch로부터의 시간(캘린더)
-                Calendar calendarByNextAlarmTime = Calendar.getInstance();
-                calendarByNextAlarmTime.setTimeInMillis(System.currentTimeMillis());
-                calendarByNextAlarmTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                calendarByNextAlarmTime.set(Calendar.MINUTE, minute);
-
-                /* 현재 시간(캘린더)과 오늘의 변경된 알람 시간(캘린더) 비교 */
-                // 현재 시간이 새 알람 시간보다 나중이면 다음날 알람 예약
-                // (예) 현재 오전 10시인데 오전 8시로 알람 시간을 설정
-
-                // 현재 시간이 새 알람 시간보다 앞서면 앞서면 당일 알람 예약
-                // (예) 현재 오전 1시인데 오전 9시로 알람 시간을 설정
-                if (calendarByNow.after(calendarByNextAlarmTime)) {
-                    calendarByNextAlarmTime.add(Calendar.DAY_OF_MONTH, 1);
-                }
+                // 다음 알람 시간을 가지는 캘린더 생성
+                Calendar calendarOfNextAlarmTime = alarmUtil.getCalendarOfNextDailyAlarmTime(hourOfDay, minute);
 
                 // 다음 알람 설정
-                // setRepeating()은 API 19 이상에서 정확하게 원하는 시간에 작동하지 않는다
-                // setExact()로 정확히 알람 울리고 알람 울릴 때마다 다시 알람 예약 필요
-                alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(calendarByNextAlarmTime.getTimeInMillis(), alarmIntent), alarmIntent);
+                alarmUtil.setNextAlarm(calendarOfNextAlarmTime);
+                // 현재 예약된 알람 시간 보여주기
+                updateNextAlarmText();
             }
         });
 
 
-        /* N시간 수면 numberPicker 시간, 분 범위 설정 */
+        /* N시간 수면 numberPicker 시간, 분 범위 초기 설정, 리스너 등록 */
+
         /* 시간 */
         NumberPicker nSleepHourPicker = binding.nSleepHourPicker;
         // 범위 설정
-        nSleepHourPicker.setMinValue(0);
-        nSleepHourPicker.setMaxValue(12);
+        setRangeOfNumberPicker(nSleepHourPicker, 0, 12);
         // 기존 설정 값 불러오기
-        nSleepHourPicker.setValue(nSleepHourPreference);
+        loadInitValueInNumberPicker(nSleepHourPreference, nSleepHourPicker);
         //리스너 등록
-        nSleepHourPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                SharedPreferences.Editor editor = sharedPref.edit();
-                // 설정 변경
-                editor.putInt(getString(R.string.nSleepHour), newVal);
-                // 디스크에 비동기로 write
-                editor.apply();
-            }
-        });
+        setChangedListenerOfNumberPickerWithPreference(sharedPref, nSleepHourPicker, R.string.nSleepHour);
 
         /* 분 */
         NumberPicker nSleepMinutePicker = binding.nSleepMinPicker;
         // 범위 설정
-        nSleepMinutePicker.setMinValue(0);
-        nSleepMinutePicker.setMaxValue(59);
+        setRangeOfNumberPicker(nSleepMinutePicker, 0, 59);
         // 기존 설정 값 불러오기
-        nSleepMinutePicker.setValue(nSleepMinutePreference);
+        loadInitValueInNumberPicker(nSleepMinutePreference, nSleepMinutePicker);
         // 리스너 등록
-        nSleepMinutePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+        setChangedListenerOfNumberPickerWithPreference(sharedPref, nSleepMinutePicker, R.string.nSleepMinute);
+
+
+        // mSleep 버튼 클릭 리스너
+        binding.nSleepBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                SharedPreferences.Editor editor = sharedPref.edit();
-                // 설정 변경
-                editor.putInt(getString(R.string.nSleepMinute), newVal);
-                // 디스크에 비동기로 write
-                editor.apply();
+            public void onClick(View v) {
+                // 현재 시점의 nSleep 시간, 분 찾기
+                int nSleepHourPreference = sharedPref.getInt(getString(R.string.nSleepHour), 7);
+                int nSleepMinutePreference = sharedPref.getInt(getString(R.string.nSleepMinute), 0);
+
+                // 다음 알람 시간을 갖는 캘린더 설정
+                Calendar nextAlarmCalendar = alarmUtil.getCalendarOfNextNSleepAlarmTime(nSleepHourPreference, nSleepMinutePreference);
+
+                // 다음 알람 설정
+                alarmUtil.setNextAlarm(nextAlarmCalendar);
+                // 현재 예약된 알람 시간 보여주기
+                updateNextAlarmText();
             }
         });
 
@@ -200,15 +131,65 @@ public class FirstFragment extends Fragment {
         mainActivity.eventQuery(calendarCoreInfoList);
     }
 
-    private void setDailyAlarmText(int dailyAlarmHourPreference, int dailyAlarmMinutePreference) {
-        TextView alarmInfoText = binding.alarmInfoText;
+    private void setChangedListenerOfNumberPickerWithPreference(SharedPreferences sharedPref, NumberPicker numberPicker, int preferenceKey) {
+        numberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                SharedPreferences.Editor editor = sharedPref.edit();
+                // 설정 변경
+                editor.putInt(getString(preferenceKey), newVal);
+                // 디스크에 비동기로 write
+                editor.apply();
+            }
+        });
+    }
 
+    private void loadInitValueInNumberPicker(int initValue, NumberPicker numberPicker) {
+        numberPicker.setValue(initValue);
+    }
+
+    /* NumberPicker의 숫자 범위 설정 */
+    private void setRangeOfNumberPicker(NumberPicker numberPicker, int minValue, int maxValue) {
+        numberPicker.setMinValue(minValue);
+        numberPicker.setMaxValue(maxValue);
+    }
+
+
+    private void saveChangedTimeInSharedPreference(int hourOfDay, int minute, SharedPreferences sharedPref) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        // 설정 변경
+        editor.putInt(getString(R.string.dailyAlarmHour), hourOfDay);
+        editor.putInt(getString(R.string.dailyAlarmMinute), minute);
+        // 디스크에 비동기로 write
+        editor.apply();
+    }
+
+    private void setTimeOfTimePicker(int dailyAlarmHourPreference, int dailyAlarmMinutePreference, TimePicker dailyAlarmTimePicker) {
+        dailyAlarmTimePicker.setHour(dailyAlarmHourPreference);
+        dailyAlarmTimePicker.setMinute(dailyAlarmMinutePreference);
+    }
+
+    private void updateNextAlarmText() {
+        // 다음 알람 시간 보여주기
+        TextView alarmInfoText = binding.alarmInfoText;
         StringBuilder sb = new StringBuilder();
-        sb.append("매일 ");
-        sb.append(dailyAlarmHourPreference);
-        sb.append("시 ");
-        sb.append(dailyAlarmMinutePreference);
-        sb.append("분에 알람이 울립니다");
+
+        // 정확히 다음 알람 시간 get
+        AlarmClockInfo nextAlarmClockInfo = alarmUtil.getNextAlarmClock();
+        // 다음 알람이 없으면
+        if (nextAlarmClockInfo == null) {
+            sb.append("다음 알람이 없습니다.");
+        } else {
+            long triggerTimeInUTC = nextAlarmClockInfo.getTriggerTime();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(triggerTimeInUTC);
+
+            sb.append("다음 알람은 ");
+            sb.append(calendar.get(Calendar.HOUR));
+            sb.append("시 ");
+            sb.append(calendar.get(Calendar.MINUTE));
+            sb.append("분에 울립니다");
+        }
 
         alarmInfoText.setText(sb.toString());
     }

@@ -35,7 +35,7 @@
 
                 <!-- 다음 알람은 N시간 수면 적용하는 버튼 -->
                 <Button
-                    android:id="@+id/sleepBtn"
+                    android:id="@+id/nSleepBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="N시간 수면 시작"
