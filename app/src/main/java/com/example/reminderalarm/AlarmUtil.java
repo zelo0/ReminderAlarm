@@ -17,26 +17,30 @@ public class AlarmUtil {
     private Context context;
     private AlarmManager alarmManager;
     private PendingIntent pendingAlarmIntent;
+    private CalendarEventManager calendarEventManager;
 
 
     public AlarmUtil(Context applicationContext) {
         context = applicationContext;
         // 시스템의 알람 서비스와 바인딩
         alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
         // 알람 브로캐스트용 pending 인텐트 생성
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.setAction("com.example.reminderalarm.alarm");
         // 기존의 인텐트가 있으면 제거 후 대체
         pendingAlarmIntent =
-                PendingIntent.getBroadcast(context, AlarmReceiver.NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-    }
+                PendingIntent.getBroadcast(context, AlarmReceiver.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
+        calendarEventManager = new CalendarEventManager(context);
+    }
 
 
 
     // 다음 알람 예약하기
     // setRepeating()은 API 19 이상에서 정확하게 원하는 시간에 작동하지 않는다
-    public void setNextAlarm(Calendar calendarOfNextAlarmTime) {
+    // 다음 알람을 예약하기 전에 알람 울리는 날의 첫 일정이 알람 시간보다 빠른 지 확인
+    public void setNextAlarm(Calendar calendarOfNextAlarmTime) throws HasEventBeforeAlarmException {
         // 다음 알람 설정
         alarmManager.setAlarmClock(new AlarmClockInfo(calendarOfNextAlarmTime.getTimeInMillis(), pendingAlarmIntent), pendingAlarmIntent);
     }
@@ -63,6 +67,7 @@ public class AlarmUtil {
 
         // 현재 시간이 새 알람 시간보다 앞서거나 같으면 당일 알람 예약
         // (예) 현재 오전 1시인데 오전 9시로 알람 시간을 설정
+        // equals()는 타임피커에서 현재 시간으로 변경 시 알람이 울리는 걸 방지
         if (calendarByNow.after(calendarByNextAlarmTime) || calendarByNow.equals(calendarByNextAlarmTime)) {
             calendarByNextAlarmTime.add(Calendar.DAY_OF_MONTH, 1);
         }
@@ -75,7 +80,7 @@ public class AlarmUtil {
     public Calendar getCalendarOfNextNSleepAlarmTime(int nSleepHourPreference, int nSleepMinutePreference) {
         Calendar nextAlarmCalendar = Calendar.getInstance();
         nextAlarmCalendar.setTimeInMillis(System.currentTimeMillis());
-        nextAlarmCalendar.add(Calendar.HOUR, nSleepHourPreference);
+        nextAlarmCalendar.add(Calendar.HOUR_OF_DAY, nSleepHourPreference);
         nextAlarmCalendar.add(Calendar.MINUTE, nSleepMinutePreference);
         return nextAlarmCalendar;
     }
@@ -102,5 +107,14 @@ public class AlarmUtil {
     public AlarmClockInfo getNextAlarmClock() {
         return alarmManager.getNextAlarmClock();
     }
+
+
+    // 알람 시간 전에 이벤트가 있으면 발생시키는 예외
+    class HasEventBeforeAlarmException extends RuntimeException {
+        public HasEventBeforeAlarmException() {
+            super("알람 시간 이전에 시작하는 이벤트가 있습니다. 사용자의 확인이 필요합니다.");
+        }
+    }
+
 
 }

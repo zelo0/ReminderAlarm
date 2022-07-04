@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.example.reminderalarm.databinding.FragmentFirstBinding;
@@ -24,6 +26,7 @@ public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
     private AlarmUtil alarmUtil;
+    private CalendarEventManager calendarEventManager;
 
     @Override
     public View onCreateView(
@@ -73,10 +76,10 @@ public class FirstFragment extends Fragment {
                 /* 시스템에 매일 알람 예약 걸기 */
 
                 // 다음 알람 시간을 가지는 캘린더 생성
-                Calendar calendarOfNextAlarmTime = alarmUtil.getCalendarOfNextDailyAlarmTime(hourOfDay, minute);
+                Calendar nextAlarmCalendar = alarmUtil.getCalendarOfNextDailyAlarmTime(hourOfDay, minute);
 
-                // 다음 알람 설정
-                alarmUtil.setNextAlarm(calendarOfNextAlarmTime);
+                setNextAlarmCheckingFirstEvent(nextAlarmCalendar);
+
                 // 현재 예약된 알람 시간 보여주기
                 updateNextAlarmText();
             }
@@ -115,20 +118,69 @@ public class FirstFragment extends Fragment {
                 // 다음 알람 시간을 갖는 캘린더 설정
                 Calendar nextAlarmCalendar = alarmUtil.getCalendarOfNextNSleepAlarmTime(nSleepHourPreference, nSleepMinutePreference);
 
-                // 다음 알람 설정
-                alarmUtil.setNextAlarm(nextAlarmCalendar);
-                // 현재 예약된 알람 시간 보여주기
+                setNextAlarmCheckingFirstEvent(nextAlarmCalendar);
+
+                // 알람 예약이 끝나면 현재 예약된 알람 시간 보여주기
                 updateNextAlarmText();
             }
         });
 
+        calendarEventManager = new CalendarEventManager(getContext().getApplicationContext());
 
         /* 이벤트 찾기 세트 */
         // 첫 화면 진입 시 캘린더 가지는 계정 찾기
         MainActivity mainActivity = (MainActivity) getActivity();
-        List<CalendarCoreInfo> calendarCoreInfoList = mainActivity.calendarQuery();
+        List<CalendarCoreInfo> calendarCoreInfoList = calendarEventManager.calendarQuery();
         // 캘린더 가져온 후에 이벤트 가져오기
-        mainActivity.eventQuery(calendarCoreInfoList);
+        calendarEventManager.eventQuery(calendarCoreInfoList);
+    }
+
+    /* 알람 울리는 날의 첫 이벤트를 확인하면서 알람을 설정 */
+    // 다음 알람 설정
+    // 다음 알람을 예약하기 전에 알람 울리는 날의 첫 일정이 알람 시간보다 빠른 지 확인
+    private void setNextAlarmCheckingFirstEvent(Calendar nextAlarmCalendar) {
+        Log.i("check", "entered");
+        // 알람 울리는 날의 자정 시간 갖는 캘린더
+        Calendar midnightCalendar = Calendar.getInstance();
+        midnightCalendar.setTimeInMillis(nextAlarmCalendar.getTimeInMillis());
+        midnightCalendar.set(Calendar.AM_PM, Calendar.AM);
+        midnightCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        midnightCalendar.set(Calendar.MINUTE, 0);
+        midnightCalendar.set(Calendar.SECOND, 0);
+
+        // 알람 울리는 날의 알람 시간 전에 시작하는 이벤트
+        EventCoreInfo firstEventFromMidnightToNextAlarm = calendarEventManager.getFirstEventFromMidnightToNextAlarm(midnightCalendar.getTimeInMillis(), nextAlarmCalendar.getTimeInMillis());
+        System.out.println("firstEventFromMidnightToNextAlarm = " + firstEventFromMidnightToNextAlarm);
+        // 존재하지 않으면 이 시간대로 알람 예약
+        // 존재하면 다이얼로그 띄우기
+        if (firstEventFromMidnightToNextAlarm == null) {
+            alarmUtil.setNextAlarm(nextAlarmCalendar);
+        } else {
+            /* 다이얼로그 띄우고 사용자에게 물은 후 다음 알람 예약 */
+
+            // 첫 이벤트 시간을 갖는 캘린더
+            Calendar firstEventTimeCalendar = Calendar.getInstance();
+            firstEventTimeCalendar.setTimeInMillis(Long.parseLong(firstEventFromMidnightToNextAlarm.getDtStart()));
+
+            /* 첫 이벤트 time, 원래 예약하려던 시간 을 다이얼로그에 전달 */
+            Bundle bundle = new Bundle();
+            // 첫 이벤트 time
+            bundle.putInt("firstEventHour", firstEventTimeCalendar.get(Calendar.HOUR_OF_DAY));
+            bundle.putInt("firstEventMinute", firstEventTimeCalendar.get(Calendar.MINUTE));
+            // 첫 이벤트 이름
+            bundle.putString("firstEventName", firstEventFromMidnightToNextAlarm.getTitle());
+            // 원래 예약하려던 알람 시간
+            bundle.putInt("preparedAlarmHour", nextAlarmCalendar.get(Calendar.HOUR_OF_DAY));
+            bundle.putInt("preparedAlarmMinute", nextAlarmCalendar.get(Calendar.MINUTE));
+
+
+            // 다이얼로그 생성, arg 넘기기
+            ManualAlarmDialogFragment manualAlarmDialogFragment = new ManualAlarmDialogFragment();
+            manualAlarmDialogFragment.setArguments(bundle);
+
+            // 다이얼로그 띄우기
+            manualAlarmDialogFragment.show(getChildFragmentManager(), "manualAlarm");
+        }
     }
 
     private void setChangedListenerOfNumberPickerWithPreference(SharedPreferences sharedPref, NumberPicker numberPicker, int preferenceKey) {
@@ -169,7 +221,7 @@ public class FirstFragment extends Fragment {
         dailyAlarmTimePicker.setMinute(dailyAlarmMinutePreference);
     }
 
-    private void updateNextAlarmText() {
+    public void updateNextAlarmText() {
         // 다음 알람 시간 보여주기
         TextView alarmInfoText = binding.alarmInfoText;
         StringBuilder sb = new StringBuilder();
@@ -185,7 +237,7 @@ public class FirstFragment extends Fragment {
             calendar.setTimeInMillis(triggerTimeInUTC);
 
             sb.append("다음 알람은 ");
-            sb.append(calendar.get(Calendar.HOUR));
+            sb.append(calendar.get(Calendar.HOUR_OF_DAY));
             sb.append("시 ");
             sb.append(calendar.get(Calendar.MINUTE));
             sb.append("분에 울립니다");
@@ -194,10 +246,30 @@ public class FirstFragment extends Fragment {
         alarmInfoText.setText(sb.toString());
     }
 
+/*
+    // 해당 시간, 분의 다음 알람을 예약해주고
+    // 여러 메소드 묶어서 수행
+    private void setNextAlarmThenUpdateAlarmTextView(int alarmHour, int alarmMinute, boolean canIgnoreEventBeforeAlarm) {
+        Calendar calendarOfNextDailyAlarmTime = alarmUtil.getCalendarOfNextDailyAlarmTime(alarmHour, alarmMinute);
+        alarmUtil.setNextAlarm(calendarOfNextDailyAlarmTime, true);
+
+        // 다음 알람 설정
+        try {
+            alarmUtil.setNextAlarm(calendarOfNextAlarmTime, false);
+        } catch (AlarmUtil.HasEventBeforeAlarmException e) {
+            // 다이얼로그 띄우고 사용자에게 묻기
+
+        }
+
+        // 현재 예약된 알람 시간 보여주기
+        updateNextAlarmText();
+    }*/
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
+
 
 }

@@ -13,4 +13,8 @@
     <string name="dailyAlarmMinute">dailyAlarmMinute</string>
     <string name="nSleepHour">nSleepHour</string>
     <string name="nSleepMinute">nSleepMinute</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="set">직접 설정한 시간</string>
+    <string name="exit">나가기</string>
+    <string name="progress">예정된 시간</string>
 </resources>
