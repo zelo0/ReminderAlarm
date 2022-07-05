@@ -22,12 +22,4 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.ReminderAlarm.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="Theme.ReminderAlarm.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="Theme.ReminderAlarm.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

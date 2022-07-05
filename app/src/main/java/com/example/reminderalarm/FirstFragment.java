@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,7 +49,7 @@ public class FirstFragment extends Fragment {
 
 
         /* sharedPreferences */
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
 
         /* sharedPreferences 읽어서 초기 값 세팅 */
         int dailyAlarmHourPreference = sharedPref.getInt(getString(R.string.dailyAlarmHour), 7);
@@ -78,7 +79,7 @@ public class FirstFragment extends Fragment {
                 // 다음 알람 시간을 가지는 캘린더 생성
                 Calendar nextAlarmCalendar = alarmUtil.getCalendarOfNextDailyAlarmTime(hourOfDay, minute);
 
-                setNextAlarmCheckingFirstEvent(nextAlarmCalendar);
+                alarmUtil.setNextAlarmCheckingFirstEvent(getChildFragmentManager(), nextAlarmCalendar, true);
 
                 // 현재 예약된 알람 시간 보여주기
                 updateNextAlarmText();
@@ -118,7 +119,7 @@ public class FirstFragment extends Fragment {
                 // 다음 알람 시간을 갖는 캘린더 설정
                 Calendar nextAlarmCalendar = alarmUtil.getCalendarOfNextNSleepAlarmTime(nSleepHourPreference, nSleepMinutePreference);
 
-                setNextAlarmCheckingFirstEvent(nextAlarmCalendar);
+                alarmUtil.setNextAlarmCheckingFirstEvent(getChildFragmentManager(), nextAlarmCalendar, false);
 
                 // 알람 예약이 끝나면 현재 예약된 알람 시간 보여주기
                 updateNextAlarmText();

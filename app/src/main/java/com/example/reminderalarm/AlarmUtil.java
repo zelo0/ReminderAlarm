@@ -5,11 +5,14 @@ import android.app.AlarmManager.AlarmClockInfo;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 
 import java.util.Calendar;
 
@@ -40,7 +43,7 @@ public class AlarmUtil {
     // 다음 알람 예약하기
     // setRepeating()은 API 19 이상에서 정확하게 원하는 시간에 작동하지 않는다
     // 다음 알람을 예약하기 전에 알람 울리는 날의 첫 일정이 알람 시간보다 빠른 지 확인
-    public void setNextAlarm(Calendar calendarOfNextAlarmTime) throws HasEventBeforeAlarmException {
+    public void setNextAlarm(Calendar calendarOfNextAlarmTime) {
         // 다음 알람 설정
         alarmManager.setAlarmClock(new AlarmClockInfo(calendarOfNextAlarmTime.getTimeInMillis(), pendingAlarmIntent), pendingAlarmIntent);
     }
@@ -109,12 +112,56 @@ public class AlarmUtil {
     }
 
 
-    // 알람 시간 전에 이벤트가 있으면 발생시키는 예외
-    class HasEventBeforeAlarmException extends RuntimeException {
-        public HasEventBeforeAlarmException() {
-            super("알람 시간 이전에 시작하는 이벤트가 있습니다. 사용자의 확인이 필요합니다.");
+    /* 알람 울리는 날의 첫 이벤트를 확인하면서 알람을 설정 */
+    // 다음 알람 설정
+    // 다음 알람을 예약하기 전에 알람 울리는 날의 첫 일정이 알람 시간보다 빠른 지 확인
+    public void setNextAlarmCheckingFirstEvent(FragmentManager fragmentManager, Calendar nextAlarmCalendar, boolean isDailyAlarmSetting) {
+        Log.i("check", "entered");
+        // 알람 울리는 날의 자정 시간 갖는 캘린더
+        Calendar midnightCalendar = Calendar.getInstance();
+        midnightCalendar.setTimeInMillis(nextAlarmCalendar.getTimeInMillis());
+        midnightCalendar.set(Calendar.AM_PM, Calendar.AM);
+        midnightCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        midnightCalendar.set(Calendar.MINUTE, 0);
+        midnightCalendar.set(Calendar.SECOND, 0);
+
+        // 알람 울리는 날의 알람 시간 전에 시작하는 이벤트
+        EventCoreInfo firstEventFromMidnightToNextAlarm = calendarEventManager.getFirstEventFromMidnightToNextAlarm(midnightCalendar.getTimeInMillis(), nextAlarmCalendar.getTimeInMillis());
+        // 존재하지 않으면 이 시간대로 알람 예약
+        // 존재하면 다이얼로그 띄우기
+        if (firstEventFromMidnightToNextAlarm == null) {
+            setNextAlarm(nextAlarmCalendar);
+        } else {
+            /* 다이얼로그 띄우고 사용자에게 물은 후 다음 알람 예약 */
+
+            // 첫 이벤트 시간을 갖는 캘린더
+            Calendar firstEventTimeCalendar = Calendar.getInstance();
+            firstEventTimeCalendar.setTimeInMillis(Long.parseLong(firstEventFromMidnightToNextAlarm.getDtStart()));
+
+            /* 첫 이벤트 time, 원래 예약하려던 시간 을 다이얼로그에 전달 */
+            Bundle bundle = new Bundle();
+            // 첫 이벤트 time
+            bundle.putInt("firstEventHour", firstEventTimeCalendar.get(Calendar.HOUR_OF_DAY));
+            bundle.putInt("firstEventMinute", firstEventTimeCalendar.get(Calendar.MINUTE));
+            // 첫 이벤트 이름
+            bundle.putString("firstEventName", firstEventFromMidnightToNextAlarm.getTitle());
+            // 원래 예약하려던 알람 시간
+            bundle.putInt("preparedAlarmHour", nextAlarmCalendar.get(Calendar.HOUR_OF_DAY));
+            bundle.putInt("preparedAlarmMinute", nextAlarmCalendar.get(Calendar.MINUTE));
+            // 매일 알람 시간 설정 중인지 여부
+            bundle.putBoolean("isDailyAlarmSetting", isDailyAlarmSetting);
+
+
+            // 다이얼로그 생성, arg 넘기기
+            ManualAlarmDialogFragment manualAlarmDialogFragment = new ManualAlarmDialogFragment();
+            manualAlarmDialogFragment.setArguments(bundle);
+
+            // 다이얼로그 띄우기
+            manualAlarmDialogFragment.show(fragmentManager, "manualAlarm");
         }
     }
+
+
 
 
 }

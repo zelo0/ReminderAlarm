@@ -92,7 +92,6 @@ public class CalendarEventManager {
 
         // 쿼리
         Cursor cursor = contentResolver.query(calendarUri, CALENDAR_PROJECTION, "", null, null);
-        Log.i("checkpoint", "requested to content provider to get calendars");
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 String calendarId = cursor.getString(PROJECTION_CALENDAR_ID);
@@ -140,8 +139,6 @@ public class CalendarEventManager {
             };
 
             Cursor cursor = contentResolver.query(eventUri, EVENT_PROJECTION, EVENT_SELECTION_CLAUSE, selectionArgs, EVENT_QUERY_ORDER);
-            Log.i("checkpoint", "requested to content provider whose calender's id is " + calendarCoreInfo.getCalenderId());
-            Log.i("checkpoint", "requested to content provider to get events destined to do today");
             if (cursor != null) {
                 while (cursor.moveToNext()) {
                     String eventId = cursor.getString(PROJECTION_EVENT_ID);
@@ -235,10 +232,6 @@ public class CalendarEventManager {
         // 이벤트들을 시작 시간 기준으로 정렬
         Collections.sort(eventListBetweenTimes);
 
-
-        Log.i("checkpoint", "midnightEpoch: " + midnightEpoch + " alarmEpoch: " + nextAlarmEpoch);
-
-        Log.i("checkpoint", "eventSize: " + eventListBetweenTimes.size());
 
         // 가장 앞의 이벤트 리턴
         if (eventListBetweenTimes.isEmpty()) {
