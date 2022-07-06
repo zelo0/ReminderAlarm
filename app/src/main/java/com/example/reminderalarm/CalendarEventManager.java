@@ -101,9 +101,9 @@ public class CalendarEventManager {
                 String syncId = cursor.getString(PROJECTION_SYNC_ID);
                 String timeZone = cursor.getString(PROJECTION_TIME_ZONE);
 
-                Log.i("calendar query", "calendar id: " + calendarId + ", account name: " + accountName
+      /*          Log.i("calendar query", "calendar id: " + calendarId + ", account name: " + accountName
                         + ", account type: " + accountType + ", display name: " + displayName
-                        + ", sync id: " + syncId + ", time zone: " + timeZone);
+                        + ", sync id: " + syncId + ", time zone: " + timeZone);*/
 
                 if (accountName.equals(displayName)) {
                     validCalendarCoreInfoList.add(new CalendarCoreInfo(calendarId, accountName, accountType, timeZone));
@@ -114,10 +114,10 @@ public class CalendarEventManager {
         } else {
             Log.e("unexpected", "There was an error or result is empty");
         }
-
+/*
         for (CalendarCoreInfo calendarCoreInfo : validCalendarCoreInfoList) {
             Log.i("core calendar", calendarCoreInfo.toString());
-        }
+        }*/
 
         return validCalendarCoreInfoList;
     }
@@ -159,10 +159,12 @@ public class CalendarEventManager {
                     }
 
                     DateTime eventsDateTime = new DateTime(Long.parseLong(dtStart), dateTimeZone);
+/*
 
                     Log.i("event query", "event id: " + eventId + ", title: " + title
                             + ", description: " + description + ", dtStart: " + dtStart
                             + ", dtEnd: " + dtEnd + ", location: " + location + ", timezone: " + timeZone);
+*/
 
                     // 오늘의 일정만 담기
                     if (now.toLocalDate().toString().equals(eventsDateTime.toLocalDate().toString())) {
@@ -201,7 +203,7 @@ public class CalendarEventManager {
             */
             String[] selectionArgs = new String[]{
                     calendarCoreInfo.getCalenderId(),
-                    Long.toString(midnightEpoch) ,
+                    Long.toString(midnightEpoch),
                     Long.toString(nextAlarmEpoch)
             };
 
@@ -215,10 +217,12 @@ public class CalendarEventManager {
                     String dtEnd = cursor.getString(PROJECTION_EVENT_DTEND);
                     String location = cursor.getString(PROJECTION_EVENT_LOCATION);
                     String timeZone = cursor.getString(PROJECTION_EVENT_TIMEZONE);
+/*
 
                     Log.i("event query", "event id: " + eventId + ", title: " + title
                             + ", description: " + description + ", dtStart: " + dtStart
                             + ", dtEnd: " + dtEnd + ", location: " + location + ", timezone: " + timeZone);
+*/
 
                     eventListBetweenTimes.add(new EventCoreInfo(eventId, title, description, dtStart, dtEnd, location));
 
@@ -240,4 +244,58 @@ public class CalendarEventManager {
             return eventListBetweenTimes.get(0);
         }
     }
+
+
+    /* 특정 시간 사이의 일정 전부 가져오기 */
+    public List<EventCoreInfo> getAllEventsBetweenTimesAsSorted(long startEpoch, long endEpoch) {
+        List<EventCoreInfo> eventListBetweenTimes = new ArrayList<>();
+
+        // 캘린더 조회를 아직 하지 않았으면 조회하기
+        if (validCalendarCoreInfoList.isEmpty()) {
+            validCalendarCoreInfoList = calendarQuery();
+        }
+
+        // 특정 시간 사이의 이벤트
+        for (CalendarCoreInfo calendarCoreInfo : validCalendarCoreInfoList) {
+            /*
+                calendarId
+                검색할 시간 (부터)
+                검새할 시간 (까지)
+            */
+            String[] selectionArgs = new String[]{
+                    calendarCoreInfo.getCalenderId(),
+                    Long.toString(startEpoch),
+                    Long.toString(endEpoch)
+            };
+
+            Cursor cursor = contentResolver.query(eventUri, EVENT_PROJECTION, EVENT_BETWEEN_TIMES_SELECTION_CLAUSE, selectionArgs, EVENT_QUERY_ORDER);
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    String eventId = cursor.getString(PROJECTION_EVENT_ID);
+                    String title = cursor.getString(PROJECTION_EVENT_TITLE);
+                    String description = cursor.getString(PROJECTION_EVENT_DESCRIPTION);
+                    String dtStart = cursor.getString(PROJECTION_EVENT_DTSTART);
+                    String dtEnd = cursor.getString(PROJECTION_EVENT_DTEND);
+                    String location = cursor.getString(PROJECTION_EVENT_LOCATION);
+                    String timeZone = cursor.getString(PROJECTION_EVENT_TIMEZONE);
+
+                /*    Log.i("event query", "event id: " + eventId + ", title: " + title
+                            + ", description: " + description + ", dtStart: " + dtStart
+                            + ", dtEnd: " + dtEnd + ", location: " + location + ", timezone: " + timeZone);
+*/
+                    eventListBetweenTimes.add(new EventCoreInfo(eventId, title, description, dtStart, dtEnd, location));
+
+                }
+                cursor.close();
+            } else {
+                Log.e("unexpected", "There was an error or result is empty");
+            }
+        }
+
+        // 이벤트들을 시작 시간 기준으로 정렬
+        Collections.sort(eventListBetweenTimes);
+
+        return eventListBetweenTimes;
+    }
+
 }

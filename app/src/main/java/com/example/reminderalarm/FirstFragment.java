@@ -140,7 +140,7 @@ public class FirstFragment extends Fragment {
     // 다음 알람 설정
     // 다음 알람을 예약하기 전에 알람 울리는 날의 첫 일정이 알람 시간보다 빠른 지 확인
     private void setNextAlarmCheckingFirstEvent(Calendar nextAlarmCalendar) {
-        Log.i("check", "entered");
+
         // 알람 울리는 날의 자정 시간 갖는 캘린더
         Calendar midnightCalendar = Calendar.getInstance();
         midnightCalendar.setTimeInMillis(nextAlarmCalendar.getTimeInMillis());

@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.Button;
 import com.example.reminderalarm.databinding.FragmentAlarmRingBinding;
 
 import java.util.Calendar;
+import java.util.List;
 
 
 public class AlarmRingFragment extends Fragment {
@@ -60,9 +62,6 @@ public class AlarmRingFragment extends Fragment {
             // 화면 종료
             getActivity().finish();
         });
-
-        /* 오늘의 일정 받아오기 */
-        CalendarEventManager calendarEventManager = new CalendarEventManager(getContext().getApplicationContext());
 
     }
 }
