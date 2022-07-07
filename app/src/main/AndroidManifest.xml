@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- 알람 발생 시 전체 화면으로 바로 띄울 수 있는 권한 -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" /> <!-- 잠금 화면에서도 깨울 수 있는 권한 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- 부팅 알림을 받ㅇ르 수 있게 하는 권한 -->
 
     <application
         android:allowBackup="true"
@@ -48,20 +49,21 @@
         <!-- alarm intent receiver -->
         <receiver
             android:name=".AlarmReceiver"
-            android:exported="true" >
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.example.reminderalarm.alarm" />
             </intent-filter>
         </receiver>
 
-        <!-- reboot 감지 - 폰 재시작 시 알람이 다 삭제되니 다시 설정 필요 -->
+        <!-- reboot, 알람 권한 변경 감지 - 알람이 다 삭제되니 다시 설정 필요 -->
         <receiver
             android:name=".RebootReceiver"
             android:directBootAware="true"
-            android:exported="true" >
+            android:exported="false" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
     </application>

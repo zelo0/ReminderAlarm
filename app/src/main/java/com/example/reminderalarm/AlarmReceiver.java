@@ -69,6 +69,5 @@ public class AlarmReceiver extends BroadcastReceiver {
         // alarm service 호출
         Intent serviceIntent = new Intent(context, AlarmService.class);
         context.startService(serviceIntent);
-        /* 알람을 끄면 다음    날 알람 설정 */
     }
 }

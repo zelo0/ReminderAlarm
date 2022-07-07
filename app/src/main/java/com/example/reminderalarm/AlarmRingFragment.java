@@ -1,5 +1,6 @@
 package com.example.reminderalarm;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,6 +35,7 @@ public class AlarmRingFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentAlarmRingBinding.inflate(inflater, container, false);
         return binding.getRoot();
+
     }
 
     @Override
@@ -42,6 +44,8 @@ public class AlarmRingFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         alarmUtil = new AlarmUtil(getContext().getApplicationContext());
+
+        alarmUtil.checkIfCanScheduleExactAlarms();
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
 
@@ -55,6 +59,10 @@ public class AlarmRingFragment extends Fragment {
             // 매일 알람 시간의 다음 알람을 예약
             int dailyAlarmHourPreference = sharedPref.getInt(getString(R.string.dailyAlarmHour), 7);
             int dailyAlarmMinutePreference = sharedPref.getInt(getString(R.string.dailyAlarmMinute), 0);
+
+            System.out.println("dailyAlarmHourPreference = " + dailyAlarmHourPreference);
+            System.out.println("dailyAlarmMinutePreference = " + dailyAlarmMinutePreference);
+
             Calendar nextAlarmCalendar = alarmUtil.getCalendarOfNextDailyAlarmTime(dailyAlarmHourPreference, dailyAlarmMinutePreference);
 
             alarmUtil.setNextAlarmCheckingFirstEvent(getChildFragmentManager(), nextAlarmCalendar, false);
@@ -62,6 +70,7 @@ public class AlarmRingFragment extends Fragment {
             // 화면 종료
             getActivity().finish();
         });
+
 
     }
 }

@@ -12,4 +12,7 @@
     <string name="nSleepMinute">nSleepMinute</string>
     <string name="set">직접 설정한 시간</string>
     <string name="progress">예정된 시간</string>
+    <string name="nextAlarmHour">nextAlarmHour</string>
+    <string name="nextAlarmMinute">nextAlarmMinute</string>
+    <string name="nextAlarmTimeInMilli">nextAlarmTimeInMilli</string>
 </resources>

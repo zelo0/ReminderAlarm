@@ -5,10 +5,12 @@ import android.app.AlarmManager.AlarmClockInfo;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,6 +24,9 @@ public class AlarmUtil {
     private PendingIntent pendingAlarmIntent;
     private CalendarEventManager calendarEventManager;
 
+    private ManualAlarmDialogFragment manualAlarmDialogFragment;
+
+    private SharedPreferences sharedPref;
 
     public AlarmUtil(Context applicationContext) {
         context = applicationContext;
@@ -33,9 +38,14 @@ public class AlarmUtil {
         intent.setAction("com.example.reminderalarm.alarm");
         // 기존의 인텐트가 있으면 제거 후 대체
         pendingAlarmIntent =
-                PendingIntent.getBroadcast(context, AlarmReceiver.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                PendingIntent.getBroadcast(context, AlarmReceiver.NOTIFICATION_ID, intent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
+
+        System.out.println("pendingAlarmIntent in alarmUtil = " + pendingAlarmIntent);
 
         calendarEventManager = new CalendarEventManager(context);
+
+        // shared preferences
+         sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
 
@@ -44,8 +54,28 @@ public class AlarmUtil {
     // setRepeating()은 API 19 이상에서 정확하게 원하는 시간에 작동하지 않는다
     // 다음 알람을 예약하기 전에 알람 울리는 날의 첫 일정이 알람 시간보다 빠른 지 확인
     public void setNextAlarm(Calendar calendarOfNextAlarmTime) {
+        Log.i("SetAlarm", calendarOfNextAlarmTime.get(Calendar.DAY_OF_MONTH) + "일 " + calendarOfNextAlarmTime.get(Calendar.HOUR_OF_DAY) + " : " + calendarOfNextAlarmTime.get(Calendar.MINUTE));
+
+        // 제거
+        // PendingIntent 새로 생성 필요?
+        // 알람 브로캐스트용 pending 인텐트 생성
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        intent.setAction("com.example.reminderalarm.alarm");
+        PendingIntent pendingAlarmIntent =
+                PendingIntent.getBroadcast(context, AlarmReceiver.NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        System.out.println("pendingAlarmIntent in alarmUtil = " + pendingAlarmIntent);
+
+
         // 다음 알람 설정
         alarmManager.setAlarmClock(new AlarmClockInfo(calendarOfNextAlarmTime.getTimeInMillis(), pendingAlarmIntent), pendingAlarmIntent);
+
+        // 다음 알람 시간을 SharedPreferences에 저장
+        SharedPreferences.Editor editor = sharedPref.edit();
+        // 설정 변경
+        editor.putLong(context.getString(R.string.nextAlarmTimeInMilli), calendarOfNextAlarmTime.getTimeInMillis());
+        // 디스크에 비동기로 write
+        editor.apply();
     }
 
 
@@ -93,21 +123,30 @@ public class AlarmUtil {
         // VERSION_CODES.S 이상일 때는 SCHEDULE_EXACT_ALARM이 있어야만 정확한 시간에 알람 가능 - 권한 설정돼있는 지 체크
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             // 정확한 알람 설정 권한 있는 지 체크
-            boolean hasAlarmPermission = false;
+            boolean hasAlarmPermission = alarmManager.canScheduleExactAlarms();
 
-            hasAlarmPermission = alarmManager.canScheduleExactAlarms();
             // 해당 권한이 없으면 설정 화면으로 이동시킴
             if (!hasAlarmPermission) {
                 Toast.makeText(context, "정확한 시간에 알람이 울리기 위해서 권한을 허가해주세요", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             }
         }
     }
 
+    // alarmManager.getNextAlarmClock()는 어떤 앱에서 setAlarmClock()을 호출한 알람이든 잡는 문제
+    public AlarmTime getNextAlarmClock() {
 
-    public AlarmClockInfo getNextAlarmClock() {
+        // 다음 알람 시간이 설정되어있지 않으면 return null
+        if (!sharedPref.contains(context.getString(R.string.nextAlarmTimeInMilli))) {
+            return null;
+        }
+
+        return new AlarmTime(sharedPref.getLong(context.getString(R.string.nextAlarmTimeInMilli), 0));
+    }
+
+    public AlarmClockInfo nativeGetNextAlarmClock() {
         return alarmManager.getNextAlarmClock();
     }
 
@@ -120,7 +159,7 @@ public class AlarmUtil {
         // 알람 울리는 날의 자정 시간 갖는 캘린더
         Calendar midnightCalendar = Calendar.getInstance();
         midnightCalendar.setTimeInMillis(nextAlarmCalendar.getTimeInMillis());
-        midnightCalendar.set(Calendar.AM_PM, Calendar.AM);
+//        midnightCalendar.set(Calendar.AM_PM, Calendar.AM);
         midnightCalendar.set(Calendar.HOUR_OF_DAY, 0);
         midnightCalendar.set(Calendar.MINUTE, 0);
         midnightCalendar.set(Calendar.SECOND, 0);
@@ -152,12 +191,19 @@ public class AlarmUtil {
             bundle.putBoolean("isDailyAlarmSetting", isDailyAlarmSetting);
 
 
+            // 타임피커를 빠르게 스크롤하면 다이얼로그가 여러개 뜨는 문제
+            // 기존 다이얼로그가 있으면 없애고 새 다이얼로그 띄우기
+            if (manualAlarmDialogFragment != null) {
+                manualAlarmDialogFragment.dismiss();
+            }
+
             // 다이얼로그 생성, arg 넘기기
-            ManualAlarmDialogFragment manualAlarmDialogFragment = new ManualAlarmDialogFragment();
+            manualAlarmDialogFragment = new ManualAlarmDialogFragment();
             manualAlarmDialogFragment.setArguments(bundle);
 
-            // 다이얼로그 띄우기
             manualAlarmDialogFragment.show(fragmentManager, "manualAlarm");
+
+
         }
     }
 

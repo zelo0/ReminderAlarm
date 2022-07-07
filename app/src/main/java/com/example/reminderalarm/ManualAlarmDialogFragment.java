@@ -61,7 +61,7 @@ public class ManualAlarmDialogFragment extends DialogFragment {
         manualAlarmTimePicker.setMinute(firstEventMinute);
 
         // 안내 텍스트 설정
-        firstEventNameTextView.setText("'" + firstEventName + "'");
+        firstEventNameTextView.setText(String.format("'%s'", firstEventName));
         firstEventTimeTextView.setText("첫 일정 : " + firstEventHour + " : " + firstEventMinute);
         preparedAlarmTimeTextView.setText("예정 알람 : " + preparedAlarmHour + " : " + preparedAlarmMinute);
 

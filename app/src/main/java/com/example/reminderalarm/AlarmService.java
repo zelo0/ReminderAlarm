@@ -166,13 +166,15 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
 
                 // 이벤트 이름
                 whatToSay.append(event.getTitle());
-            }
 
-            speakText(whatToSay.toString());
+                whatToSay.append("       ");
+            }
 
         } else {
             whatToSay.append("오늘은 기록해놓은 일정이 없으세요. ");
         }
+
+        speakText(whatToSay.toString());
     }
 
     public void speakText(String text) {
