@@ -1,22 +1,21 @@
-package com.example.reminderalarm;
+package com.example.reminderalarm.util;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.media.metrics.Event;
 import android.net.Uri;
 import android.provider.CalendarContract;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import com.example.reminderalarm.data.CalendarCoreInfo;
+import com.example.reminderalarm.data.EventCoreInfo;
+
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -122,7 +121,7 @@ public class CalendarEventManager {
         return validCalendarCoreInfoList;
     }
 
-
+/*
     // 이벤트 찾는 메소드
     public void eventQuery(List<CalendarCoreInfo> calendarCoreInfoList) {
         // 이벤트 쿼리 결과를 담는 set
@@ -159,12 +158,12 @@ public class CalendarEventManager {
                     }
 
                     DateTime eventsDateTime = new DateTime(Long.parseLong(dtStart), dateTimeZone);
-/*
+*//*
 
                     Log.i("event query", "event id: " + eventId + ", title: " + title
                             + ", description: " + description + ", dtStart: " + dtStart
                             + ", dtEnd: " + dtEnd + ", location: " + location + ", timezone: " + timeZone);
-*/
+*//*
 
                     // 오늘의 일정만 담기
                     if (now.toLocalDate().toString().equals(eventsDateTime.toLocalDate().toString())) {
@@ -178,7 +177,7 @@ public class CalendarEventManager {
             }
         }
 
-    }
+    }*/
 
     /*
         다음 알람 시간 이전에 그 날의 이벤트가 존재한다면 그 날의 첫번째 이벤트 리턴

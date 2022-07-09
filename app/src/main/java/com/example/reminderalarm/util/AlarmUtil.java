@@ -1,4 +1,4 @@
-package com.example.reminderalarm;
+package com.example.reminderalarm.util;
 
 import android.app.AlarmManager;
 import android.app.AlarmManager.AlarmClockInfo;
@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -16,9 +15,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.reminderalarm.data.AlarmTime;
+import com.example.reminderalarm.data.EventCoreInfo;
+import com.example.reminderalarm.R;
+import com.example.reminderalarm.broadcastReceiver.AlarmReceiver;
+import com.example.reminderalarm.fragment.ManualAlarmDialogFragment;
+import com.example.reminderalarm.service.AlarmService;
+
 import java.util.Calendar;
 
 public class AlarmUtil {
+    private static final int ALARM_REQUEST_CODE = 26;
+
     private Context context;
     private AlarmManager alarmManager;
     private PendingIntent pendingAlarmIntent;
@@ -36,11 +44,6 @@ public class AlarmUtil {
         // 알람 브로캐스트용 pending 인텐트 생성
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.setAction("com.example.reminderalarm.alarm");
-        // 기존의 인텐트가 있으면 제거 후 대체
-        pendingAlarmIntent =
-                PendingIntent.getBroadcast(context, AlarmReceiver.NOTIFICATION_ID, intent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
-
-        System.out.println("pendingAlarmIntent in alarmUtil = " + pendingAlarmIntent);
 
         calendarEventManager = new CalendarEventManager(context);
 
@@ -62,7 +65,7 @@ public class AlarmUtil {
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.setAction("com.example.reminderalarm.alarm");
         PendingIntent pendingAlarmIntent =
-                PendingIntent.getBroadcast(context, AlarmReceiver.NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                PendingIntent.getBroadcast(context, ALARM_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         System.out.println("pendingAlarmIntent in alarmUtil = " + pendingAlarmIntent);
 
@@ -93,6 +96,7 @@ public class AlarmUtil {
         calendarByNextAlarmTime.setTimeInMillis(System.currentTimeMillis());
         calendarByNextAlarmTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
         calendarByNextAlarmTime.set(Calendar.MINUTE, minute);
+        calendarByNextAlarmTime.set(Calendar.SECOND, 0);
 
         /* 현재 시간(캘린더)과 오늘의 변경된 알람 시간(캘린더) 비교 */
         // 현재 시간이 새 알람 시간보다 나중이면 다음날 알람 예약
@@ -115,6 +119,7 @@ public class AlarmUtil {
         nextAlarmCalendar.setTimeInMillis(System.currentTimeMillis());
         nextAlarmCalendar.add(Calendar.HOUR_OF_DAY, nSleepHourPreference);
         nextAlarmCalendar.add(Calendar.MINUTE, nSleepMinutePreference);
+        nextAlarmCalendar.add(Calendar.SECOND, 0);
         return nextAlarmCalendar;
     }
 

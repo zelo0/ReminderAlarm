@@ -1,4 +1,4 @@
-package com.example.reminderalarm;
+package com.example.reminderalarm.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 

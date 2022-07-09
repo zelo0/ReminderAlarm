@@ -1,13 +1,10 @@
-package com.example.reminderalarm;
+package com.example.reminderalarm.fragment;
 
-import android.app.AlarmManager;
-import android.app.AlarmManager.AlarmClockInfo;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
@@ -20,13 +17,14 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import com.example.reminderalarm.data.AlarmTime;
+import com.example.reminderalarm.util.AlarmUtil;
+import com.example.reminderalarm.R;
 import com.example.reminderalarm.databinding.FragmentFirstBinding;
 
 import java.util.Calendar;
-import java.util.List;
 
 public class FirstFragment extends Fragment {
 
@@ -57,6 +55,8 @@ public class FirstFragment extends Fragment {
 
         // canScheduleExactAlarms 권한이 취소되지 않았는지 체크
         alarmUtil.checkIfCanScheduleExactAlarms();
+
+//        checkBatteryOptimizationPermission();
 
 
         /* sharedPreferences */
@@ -148,6 +148,16 @@ public class FirstFragment extends Fragment {
         // 캘린더 가져온 후에 이벤트 가져오기
         calendarEventManager.eventQuery(calendarCoreInfoList);*/
 
+    }
+
+    private void checkBatteryOptimizationPermission() {
+        PowerManager powerManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
+//        if (!powerManager.isIgnoringBatteryOptimizations(getActivity().getPackageName())) {
+            Toast.makeText(getContext().getApplicationContext(), "화면이 켜져있지 않을 때도 알람을 울리기 위해서는 권한을 허용해주세요", Toast.LENGTH_SHORT).show();
+            Intent permissionIntent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+            permissionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().getApplicationContext().startActivity(permissionIntent);
+//        }
     }
 
 

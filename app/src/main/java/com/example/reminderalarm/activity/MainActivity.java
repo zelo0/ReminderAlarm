@@ -1,4 +1,4 @@
-package com.example.reminderalarm;
+package com.example.reminderalarm.activity;
 
 
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.reminderalarm.R;
 import com.example.reminderalarm.databinding.ActivityMainBinding;
 
 import android.view.Menu;

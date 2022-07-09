@@ -1,4 +1,4 @@
-package com.example.reminderalarm;
+package com.example.reminderalarm.data;
 
 public class CalendarCoreInfo {
     private String calenderId;

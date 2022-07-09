@@ -1,8 +1,7 @@
-package com.example.reminderalarm;
+package com.example.reminderalarm.fragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,17 +9,15 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import com.example.reminderalarm.databinding.FragmentFirstBinding;
+import com.example.reminderalarm.data.AlarmTime;
+import com.example.reminderalarm.util.AlarmUtil;
+import com.example.reminderalarm.R;
 import com.example.reminderalarm.databinding.ManualAlarmSettingDialogBinding;
 
 import java.util.Calendar;

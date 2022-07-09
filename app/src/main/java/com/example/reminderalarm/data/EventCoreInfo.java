@@ -1,4 +1,4 @@
-package com.example.reminderalarm;
+package com.example.reminderalarm.data;
 
 import androidx.annotation.NonNull;
 

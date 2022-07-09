@@ -1,9 +1,8 @@
-package com.example.reminderalarm;
+package com.example.reminderalarm.activity;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -14,19 +13,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.google.android.material.snackbar.Snackbar;
+import com.example.reminderalarm.R;
+import com.example.reminderalarm.activity.MainActivity;
 
-import java.util.Arrays;
-
-@SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 1;
     private static final String[] PERMISSIONS = {
             Manifest.permission.READ_CALENDAR,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
             // 일반 권한이라 런타임 때 요청할 필요 없다
-            // 이 권한은 환경설정 화면에서 설정 가능
 //            Manifest.permission.USE_FULL_SCREEN_INTENT,
+            // 이 권한은 환경설정 화면에서 설정 가능
 //            Manifest.permission.SCHEDULE_EXACT_ALARM,
     };
 
