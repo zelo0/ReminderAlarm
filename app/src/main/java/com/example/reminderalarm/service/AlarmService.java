@@ -135,10 +135,10 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
                 .setAutoCancel(true) // 알림 클릭 시 상단 바에서 사라자게 해줌
                 .build();
 
-        notificationManager.notify(NOTIFICATION_ID, alarmNotification);
+//        notificationManager.notify(NOTIFICATION_ID, alarmNotification);
 
         // 서비스 수행 중에는 항시 알림 창에 떠있게
-//        startForeground(NOTIFICATION_ID, alarmNotification);
+        startForeground(NOTIFICATION_ID, alarmNotification);
 
     }
 

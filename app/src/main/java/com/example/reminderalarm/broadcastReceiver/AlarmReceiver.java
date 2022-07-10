@@ -31,14 +31,20 @@ public class AlarmReceiver extends BroadcastReceiver {
         wakeLock.acquire(1*60*1000L /*1 minutes*/);
 
 
+        /* activity 시작 */
+        Intent activityIntent = new Intent(context.getApplicationContext(), AlarmRingActivity.class);
+        activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(activityIntent);
+
+
         // alarm service 호출
         Intent serviceIntent = new Intent(context, AlarmService.class);
-/*
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(serviceIntent);
         } else {
             context.startService(serviceIntent);
-        }*/
+        }
 
         context.startService(serviceIntent);
 
