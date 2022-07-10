@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +51,7 @@ public class AlarmRingFragment extends Fragment {
         /* 알람 종료 버튼 클릭 시 서비스 종료, 다음 매일 알람 예약, 화면 종료 */
         Button alarmStopBtn = binding.alarmStopBtn;
         alarmStopBtn.setOnClickListener(v -> {
+            // 포그라운드 서비스 -> 백그라운드 서비스
 
             // 알람 백그라운드 서비스 종료
             getActivity().stopService(new Intent(getContext().getApplicationContext(), AlarmService.class));
@@ -63,10 +65,15 @@ public class AlarmRingFragment extends Fragment {
 
             Calendar nextAlarmCalendar = alarmUtil.getCalendarOfNextDailyAlarmTime(dailyAlarmHourPreference, dailyAlarmMinutePreference);
 
-            alarmUtil.setNextAlarmCheckingFirstEvent(getChildFragmentManager(), nextAlarmCalendar, false);
+            boolean isNotShowingDialog
+                    = alarmUtil.setNextAlarmCheckingFirstEvent(getChildFragmentManager(), nextAlarmCalendar, false);
 
-            // 화면 종료
-            getActivity().finish();
+            Log.i("flag", "here after stop service");
+            // 다이얼로그 없으면 바로 화면 종료
+            // 다이얼로그 있으면 다이얼로그의 onDetach() 때 activity 종료
+            if (isNotShowingDialog) {
+                getActivity().finish();
+            }
         });
 
 

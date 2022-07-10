@@ -41,7 +41,7 @@ public class FirstFragment extends Fragment {
         return binding.getRoot();
     }
 
-    /* 다시 돌아오면 textview 업데이트 */
+    /* 다시 돌아오거나 처음 시작하면 알람 시간 보여주는 textview 업데이트 */
     @Override
     public void onResume() {
         super.onResume();

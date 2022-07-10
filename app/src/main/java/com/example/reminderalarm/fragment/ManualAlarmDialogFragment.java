@@ -2,6 +2,7 @@ package com.example.reminderalarm.fragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,10 +12,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.example.reminderalarm.activity.AlarmRingActivity;
+import com.example.reminderalarm.activity.MainActivity;
 import com.example.reminderalarm.data.AlarmTime;
 import com.example.reminderalarm.util.AlarmUtil;
 import com.example.reminderalarm.R;
@@ -35,7 +40,7 @@ public class ManualAlarmDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-
+        Log.i("flag", "create dialog");
         // view 바인딩
         Bundle args = getArguments();
 
@@ -116,6 +121,12 @@ public class ManualAlarmDialogFragment extends DialogFragment {
         return builder.create();
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.i("flag", "view Dialog");
+    }
+
 
 
     /* 수동 알람 시간 설정 타임피커의 시간 get */
@@ -126,8 +137,13 @@ public class ManualAlarmDialogFragment extends DialogFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        // 다음 알람 텍스트 변경
-        FirstFragment parentFragment = (FirstFragment) getParentFragment();
-        parentFragment.updateNextAlarmText();
+        if (getActivity().getClass() == MainActivity.class) {
+            // 다음 알람 텍스트 변경
+            FirstFragment parentFragment = (FirstFragment) getParentFragment();
+            parentFragment.updateNextAlarmText();
+        }
+        else if (getActivity().getClass() == AlarmRingActivity.class) {
+            getActivity().finish();
+        }
     }
 }

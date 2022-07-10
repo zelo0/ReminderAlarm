@@ -25,20 +25,22 @@ public class AlarmReceiver extends BroadcastReceiver {
         Log.i("broadcast", "received");
 
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP,
+        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 context.getPackageName() + ":offDozeMode");
-        /* 1분 동안 화면 켜기 - doze 모드 해제 */
-        wakeLock.acquire(1*60*1000L /*10 minutes*/);
+        /* 1분 동안 CPU 작동시킴, 화면을 켤 수 있는 상태 - doze 모드 해제 */
+        wakeLock.acquire(1*60*1000L /*1 minutes*/);
 
 
         // alarm service 호출
         Intent serviceIntent = new Intent(context, AlarmService.class);
-
+/*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(serviceIntent);
         } else {
             context.startService(serviceIntent);
-        }
+        }*/
+
+        context.startService(serviceIntent);
 
     }
 

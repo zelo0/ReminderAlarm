@@ -42,7 +42,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class AlarmService extends Service implements TextToSpeech.OnInitListener {
-
+    private NotificationManager notificationManager;
     private MediaPlayer mediaPlayer;
     private List<EventCoreInfo> todayEventList;
 
@@ -95,7 +95,7 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
     }
 
     private void putAlarmNotification(Context context) {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         /* notification 채널 생성 */
         NotificationChannel notificationChannel = new NotificationChannel(
@@ -138,7 +138,7 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
         notificationManager.notify(NOTIFICATION_ID, alarmNotification);
 
         // 서비스 수행 중에는 항시 알림 창에 떠있게
-        startForeground(NOTIFICATION_ID, alarmNotification);
+//        startForeground(NOTIFICATION_ID, alarmNotification);
 
     }
 
@@ -372,6 +372,9 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
         // TTS 종료
         textToSpeech.stop();
         textToSpeech.shutdown();
+
+        // 알림 창에 있는 알림 제거
+        notificationManager.cancelAll();
 
         Toast.makeText(this, "알람을 종료했습니다.", Toast.LENGTH_SHORT).show();
         super.onDestroy();

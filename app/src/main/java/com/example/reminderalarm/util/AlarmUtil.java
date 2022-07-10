@@ -159,7 +159,8 @@ public class AlarmUtil {
     /* 알람 울리는 날의 첫 이벤트를 확인하면서 알람을 설정 */
     // 다음 알람 설정
     // 다음 알람을 예약하기 전에 알람 울리는 날의 첫 일정이 알람 시간보다 빠른 지 확인
-    public void setNextAlarmCheckingFirstEvent(FragmentManager fragmentManager, Calendar nextAlarmCalendar, boolean isDailyAlarmSetting) {
+    // 다이얼로그를 안 띄우고 알람 설정 했으면 true, 다이얼르그를 띄워야하면 false 리턴
+    public boolean setNextAlarmCheckingFirstEvent(FragmentManager fragmentManager, Calendar nextAlarmCalendar, boolean isDailyAlarmSetting) {
 
         // 알람 울리는 날의 자정 시간 갖는 캘린더
         Calendar midnightCalendar = Calendar.getInstance();
@@ -175,6 +176,7 @@ public class AlarmUtil {
         // 존재하면 다이얼로그 띄우기
         if (firstEventFromMidnightToNextAlarm == null) {
             setNextAlarm(nextAlarmCalendar);
+            return true;
         } else {
             /* 다이얼로그 띄우고 사용자에게 물은 후 다음 알람 예약 */
 
@@ -207,8 +209,7 @@ public class AlarmUtil {
             manualAlarmDialogFragment.setArguments(bundle);
 
             manualAlarmDialogFragment.show(fragmentManager, "manualAlarm");
-
-
+            return false;
         }
     }
 
