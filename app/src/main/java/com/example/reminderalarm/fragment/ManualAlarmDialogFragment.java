@@ -81,17 +81,15 @@ public class ManualAlarmDialogFragment extends DialogFragment {
                         AlarmUtil alarmUtil = new AlarmUtil(getContext().getApplicationContext());
 
                         // 다이얼로그의 타임피커 시간으로 알람 예약
-                        AlarmTime manualAlarmTime = getManualAlarmTime();
-
-                        Calendar calendarOfNextDailyAlarmTime = alarmUtil.getCalendarOfNextDailyAlarmTime(manualAlarmTime.getHour(), manualAlarmTime.getMinute());
+                        Calendar calendarOfNextDailyAlarmTime = alarmUtil.getCalendarOfNextDailyAlarmTime(manualAlarmTimePicker.getHour(), manualAlarmTimePicker.getMinute());
                         alarmUtil.setNextAlarm(calendarOfNextDailyAlarmTime);
 
                         // 매일 알람 시간 설정 중이면 sharedPreference에 저장
                         if (isDailyAlarmSetting) {
                             SharedPreferences.Editor editor = sharedPref.edit();
                             // 설정 변경
-                            editor.putInt(getString(R.string.dailyAlarmHour), manualAlarmTime.getHour());
-                            editor.putInt(getString(R.string.dailyAlarmMinute), manualAlarmTime.getMinute());
+                            editor.putInt(getString(R.string.dailyAlarmHour), manualAlarmTimePicker.getHour());
+                            editor.putInt(getString(R.string.dailyAlarmMinute), manualAlarmTimePicker.getMinute());
                             // 디스크에 비동기로 write
                             editor.apply();
                         }
@@ -128,11 +126,6 @@ public class ManualAlarmDialogFragment extends DialogFragment {
     }
 
 
-
-    /* 수동 알람 시간 설정 타임피커의 시간 get */
-    public AlarmTime getManualAlarmTime() {
-        return new AlarmTime(manualAlarmTimePicker.getHour(), manualAlarmTimePicker.getMinute());
-    }
 
     @Override
     public void onDetach() {

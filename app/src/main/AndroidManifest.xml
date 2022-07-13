@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 위치 정보 받을 수 있는 권한 -->
     <uses-permission android:name="android.permission.INTERNET"/> <!-- 인터넷을 통해 날씨 정보 받기 위해 필요한 권한 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- 포그라운드 서비스 수행 권한 -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/> <!-- 배터리 최적화 무시 -->
 
 
     <application
@@ -36,6 +37,7 @@
             android:showForAllUsers="true"
             android:showWhenLocked="true"
             android:turnScreenOn="true"
+            android:launchMode="singleTask"
             />
         <!-- 메인 화면 -->
         <activity
@@ -74,5 +76,7 @@
             </intent-filter>
         </receiver>
     </application>
+
+
 
 </manifest>

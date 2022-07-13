@@ -1,5 +1,8 @@
 package com.example.reminderalarm.broadcastReceiver;
 
+import static com.example.reminderalarm.service.AlarmService.NOTIFICATION_CHANNEL_ID;
+import static com.example.reminderalarm.service.AlarmService.NOTIFICATION_ID;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -23,18 +26,15 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i("broadcast", "received");
+//
+//        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+//        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+//                context.getPackageName() + ":offDozeMode");
+//        /* 1분 동안 CPU 작동시킴, 화면을 켤 수 있는 상태 - doze 모드 해제 */
+//        wakeLock.acquire(1*60*1000L /*1 minutes*/);
 
-        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                context.getPackageName() + ":offDozeMode");
-        /* 1분 동안 CPU 작동시킴, 화면을 켤 수 있는 상태 - doze 모드 해제 */
-        wakeLock.acquire(1*60*1000L /*1 minutes*/);
 
 
-        /* activity 시작 */
-        Intent activityIntent = new Intent(context.getApplicationContext(), AlarmRingActivity.class);
-        activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(activityIntent);
 
 
         // alarm service 호출
@@ -45,8 +45,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         } else {
             context.startService(serviceIntent);
         }
-
-        context.startService(serviceIntent);
 
     }
 

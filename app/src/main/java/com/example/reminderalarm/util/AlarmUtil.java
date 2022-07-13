@@ -22,6 +22,7 @@ import com.example.reminderalarm.broadcastReceiver.AlarmReceiver;
 import com.example.reminderalarm.fragment.ManualAlarmDialogFragment;
 import com.example.reminderalarm.service.AlarmService;
 
+import java.text.MessageFormat;
 import java.util.Calendar;
 
 public class AlarmUtil {
@@ -79,6 +80,11 @@ public class AlarmUtil {
         editor.putLong(context.getString(R.string.nextAlarmTimeInMilli), calendarOfNextAlarmTime.getTimeInMillis());
         // 디스크에 비동기로 write
         editor.apply();
+
+        // 예약된 알람 시간 토스트로 알려주기
+        String message =
+                MessageFormat.format("다음 알람: {0}월 {1}일 {2}시 {3}분 ", calendarOfNextAlarmTime.get(Calendar.MONTH) + 1, calendarOfNextAlarmTime.get(Calendar.DAY_OF_MONTH), calendarOfNextAlarmTime.get(Calendar.HOUR_OF_DAY), calendarOfNextAlarmTime.get(Calendar.MINUTE));
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
 
 

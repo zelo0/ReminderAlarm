@@ -113,7 +113,7 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
         /* notification 생성 */
         // 알람 시간이 되면 알람 울리는 화면으로 진입
         Intent alarmIntent = new Intent(context, AlarmRingActivity.class);
-        alarmIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        alarmIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         // activity를 시작하는 intent
         PendingIntent pendingAlarmIntent = PendingIntent.getActivity(
@@ -126,18 +126,19 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
         Notification alarmNotification = notificationBuilder
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setContentTitle("퍼펙트 데이")
                 .setContentText("일어날 시간이에요. 오늘도 완벽한 하루 되세요")
+//                .setContentIntent(pendingAlarmIntent)
                 .setFullScreenIntent(pendingAlarmIntent, true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setAutoCancel(true) // 알림 클릭 시 상단 바에서 사라자게 해줌
                 .build();
 
-//        notificationManager.notify(NOTIFICATION_ID, alarmNotification);
+        notificationManager.notify(NOTIFICATION_ID, alarmNotification);
 
-        // 서비스 수행 중에는 항시 알림 창에 떠있게
+
         startForeground(NOTIFICATION_ID, alarmNotification);
 
     }
@@ -169,18 +170,14 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
         }
 
         // gps 위치 -> 없으면 네트워크 위치
-        Location lastKnownLocationByGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        Location lastKnownLocationByNetwork = null;
-        if (lastKnownLocationByGPS == null) {
-            lastKnownLocationByNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        }
+        // gps로 위치 얻으려면 FINE_LOCATION 권한이 필요하다
+        Location lastKnownLocationByNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
 
-        // 위치 정보를 가져왔으면
-        if (lastKnownLocationByGPS != null) {
+        if (lastKnownLocationByNetwork != null) {
             /* 날씨 api에 정보 요청 */
             WeatherApiManager weatherApiManager = new WeatherApiManager(getApplicationContext(), todayDateString,
-                    currentHourString, lastKnownLocationByGPS.getLatitude(), lastKnownLocationByGPS.getLongitude());
+                    currentHourString, lastKnownLocationByNetwork.getLatitude(), lastKnownLocationByNetwork.getLongitude());
             try {
                 weatherApiManager.execute().get();
             } catch (ExecutionException e) {
@@ -190,35 +187,18 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
             }
             weatherResponse = weatherApiManager.getWeatherResponse();
 
-/*
-            weatherResponse = weatherApiManagr.erequestWeather(todayDateString, currentHourString,
-                    lastKnownLocationByGPS.getLatitude(), lastKnownLocationByGPS.getLongitude());*/
+           /* weatherResponse = weatherApiManager.requestWeather(todayDateString, currentHourString,
+                    lastKnownLocationByNetwork.getLatitude(), lastKnownLocationByNetwork.getLongitude());*/
         } else {
-            if (lastKnownLocationByNetwork != null) {
-                /* 날씨 api에 정보 요청 */
-                WeatherApiManager weatherApiManager = new WeatherApiManager(getApplicationContext(), todayDateString,
-                        currentHourString, lastKnownLocationByNetwork.getLatitude(), lastKnownLocationByNetwork.getLongitude());
-                try {
-                    weatherApiManager.execute().get();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                weatherResponse = weatherApiManager.getWeatherResponse();
-
-               /* weatherResponse = weatherApiManager.requestWeather(todayDateString, currentHourString,
-                        lastKnownLocationByNetwork.getLatitude(), lastKnownLocationByNetwork.getLongitude());*/
-            } else {
-                // 위치 정보를 못 가져온 상황
-                Toast.makeText(getApplicationContext(), "위치 정보를 가져오지 못 했습니다", Toast.LENGTH_SHORT).show();
-            }
+            // 위치 정보를 못 가져온 상황
+            Toast.makeText(getApplicationContext(), "위치 정보를 가져오지 못 했습니다", Toast.LENGTH_SHORT).show();
         }
 
         System.out.println("weatherResponse = " + weatherResponse);
 
         /* 말할 날씨 정보 생성 */
         if (weatherResponse != null) {
+            resultBuilder.append("                      ");
             resultBuilder.append("현재 기온은 ");
             resultBuilder.append(weatherResponse.getCurrentTemperature());
             resultBuilder.append("도입니다. ");
@@ -376,7 +356,7 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
         // 알림 창에 있는 알림 제거
         notificationManager.cancelAll();
 
-        Toast.makeText(this, "알람을 종료했습니다.", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "알람을 종료했습니다.", Toast.LENGTH_SHORT).show();
         super.onDestroy();
     }
 

@@ -14,7 +14,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.example.reminderalarm.data.AlarmTime;
 import com.example.reminderalarm.service.AlarmService;
 import com.example.reminderalarm.util.AlarmUtil;
 import com.example.reminderalarm.R;
@@ -69,6 +71,8 @@ public class AlarmRingFragment extends Fragment {
                     = alarmUtil.setNextAlarmCheckingFirstEvent(getChildFragmentManager(), nextAlarmCalendar, false);
 
             Log.i("flag", "here after stop service");
+
+
             // 다이얼로그 없으면 바로 화면 종료
             // 다이얼로그 있으면 다이얼로그의 onDetach() 때 activity 종료
             if (isNotShowingDialog) {
