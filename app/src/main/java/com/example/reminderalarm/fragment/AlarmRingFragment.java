@@ -1,12 +1,18 @@
 package com.example.reminderalarm.fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -14,15 +20,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.example.reminderalarm.data.AlarmTime;
+import com.example.reminderalarm.adapter.EventAdapter;
+import com.example.reminderalarm.data.EventCoreInfo;
 import com.example.reminderalarm.service.AlarmService;
 import com.example.reminderalarm.util.AlarmUtil;
 import com.example.reminderalarm.R;
 import com.example.reminderalarm.databinding.FragmentAlarmRingBinding;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 
 public class AlarmRingFragment extends Fragment {
@@ -31,12 +44,12 @@ public class AlarmRingFragment extends Fragment {
     private AlarmUtil alarmUtil;
     private SharedPreferences sharedPref;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentAlarmRingBinding.inflate(inflater, container, false);
         return binding.getRoot();
-
     }
 
     @Override
@@ -49,6 +62,7 @@ public class AlarmRingFragment extends Fragment {
         alarmUtil.checkIfCanScheduleExactAlarms();
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+
 
         /* 알람 종료 버튼 클릭 시 서비스 종료, 다음 매일 알람 예약, 화면 종료 */
         Button alarmStopBtn = binding.alarmStopBtn;
@@ -79,6 +93,8 @@ public class AlarmRingFragment extends Fragment {
                 getActivity().finish();
             }
         });
+
+
 
 
     }

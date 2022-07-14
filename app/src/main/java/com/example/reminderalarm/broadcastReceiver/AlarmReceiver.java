@@ -1,24 +1,12 @@
 package com.example.reminderalarm.broadcastReceiver;
 
-import static com.example.reminderalarm.service.AlarmService.NOTIFICATION_CHANNEL_ID;
-import static com.example.reminderalarm.service.AlarmService.NOTIFICATION_ID;
-
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.PowerManager;
 import android.util.Log;
 
-import androidx.core.app.NotificationCompat;
-
-import com.example.reminderalarm.activity.AlarmRingActivity;
 import com.example.reminderalarm.service.AlarmService;
-import com.example.reminderalarm.R;
 
 public class AlarmReceiver extends BroadcastReceiver {
 

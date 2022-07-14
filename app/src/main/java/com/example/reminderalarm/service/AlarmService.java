@@ -11,13 +11,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
+import android.media.metrics.Event;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
@@ -26,6 +26,10 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.reminderalarm.R;
 import com.example.reminderalarm.activity.AlarmRingActivity;
@@ -33,6 +37,7 @@ import com.example.reminderalarm.util.CalendarEventManager;
 import com.example.reminderalarm.data.EventCoreInfo;
 import com.example.reminderalarm.util.WeatherApiManager;
 import com.example.reminderalarm.util.WeatherApiManager.WeatherResponse;
+import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -42,9 +47,18 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class AlarmService extends Service implements TextToSpeech.OnInitListener {
+    public static final String UPDATE_EVENT_BROADCAST = AlarmService.class.getName() + ".UPDATE_EVENT_BROADCAST";
+    public static final String UPDATE_WEATHER_BROADCAST = AlarmService.class.getName() + ".UPDATE_WEATHER_BROADCAST";
+    public static final String TODAY_EVENTS = "TODAY_EVENTS";
+    public static final String CURRENT_TEMPERATURE = "CURRENT_TEMPERATURE";
+    public static final String MIN_TEMPERATURE = "MIN_TEMPERATURE";
+    public static final String MAX_TEMPERATURE = "MAX_TEMPERATURE";
+    public static final String WILL_RAIN = "WILL_RAIN";
+
     private NotificationManager notificationManager;
     private MediaPlayer mediaPlayer;
-    private List<EventCoreInfo> todayEventList;
+    private List<EventCoreInfo> todayEventList = null;
+    private WeatherResponse weatherResponse = null;
 
     public static final int NOTIFICATION_ID = 48;
     public static final String NOTIFICATION_CHANNEL_ID = "ALARM_NOTIFICATION_CHANNEL";
@@ -56,12 +70,19 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
     private StringBuffer whatToSay = new StringBuffer();
     private static final String ALARM_SPEECH_ID = "ALARM_SPEECH_ID";
 
+    private IBinder mBinder = new LocalBinder();
+
+    public class LocalBinder extends Binder {
+        public AlarmService getService() {
+            return AlarmService.this;
+        }
+    }
+
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
-//        throw new UnsupportedOperationException("Not yet implemented");
+        return mBinder;
     }
 
     @Override
@@ -90,9 +111,28 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
         textToSpeech = new TextToSpeech(AlarmService.this, this);
 
 
-
         return super.onStartCommand(intent, flags, startId);
     }
+
+    public List<EventCoreInfo> getTodayEventList() {
+        return todayEventList;
+    }
+
+    public WeatherResponse getTodayWeather() {
+        return weatherResponse;
+    }
+
+
+
+    private void sendTodayWeatherByBroadcast() {
+        Intent updateWeatherIntent = new Intent(UPDATE_WEATHER_BROADCAST);
+        updateWeatherIntent.putExtra(CURRENT_TEMPERATURE, weatherResponse.getCurrentTemperature());
+        updateWeatherIntent.putExtra(MIN_TEMPERATURE, weatherResponse.getMinTemperature());
+        updateWeatherIntent.putExtra(MAX_TEMPERATURE, weatherResponse.getMaxTemperature());
+        updateWeatherIntent.putExtra(WILL_RAIN, weatherResponse.getWillRain());
+        LocalBroadcastManager.getInstance(this).sendBroadcast(updateWeatherIntent);
+    }
+
 
     private void putAlarmNotification(Context context) {
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -113,7 +153,6 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
         /* notification 생성 */
         // 알람 시간이 되면 알람 울리는 화면으로 진입
         Intent alarmIntent = new Intent(context, AlarmRingActivity.class);
-//        alarmIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         // activity를 시작하는 intent
         PendingIntent pendingAlarmIntent = PendingIntent.getActivity(
@@ -126,10 +165,9 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
         Notification alarmNotification = notificationBuilder
-                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("퍼펙트 데이")
                 .setContentText("일어날 시간이에요. 오늘도 완벽한 하루 되세요")
-//                .setContentIntent(pendingAlarmIntent)
                 .setFullScreenIntent(pendingAlarmIntent, true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
@@ -143,10 +181,9 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
 
     }
 
-    private String getWeatherInformation() {
+    /* 날씨 정보 얻기 */
+    private void fetchWeatherInformation() {
         System.out.println("weather request");
-        StringBuilder resultBuilder = new StringBuilder();
-        WeatherResponse weatherResponse = null;
 
         /* 요구하는 패턴의 문자열로 변환 */
         Date date = new Date();
@@ -166,7 +203,7 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
    /*         Intent permissionIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             permissionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getApplicationContext().startActivity(permissionIntent);*/
-            return new String();
+//            return new String();
         }
 
         // gps 위치 -> 없으면 네트워크 위치
@@ -189,16 +226,24 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
 
            /* weatherResponse = weatherApiManager.requestWeather(todayDateString, currentHourString,
                     lastKnownLocationByNetwork.getLatitude(), lastKnownLocationByNetwork.getLongitude());*/
+
         } else {
             // 위치 정보를 못 가져온 상황
             Toast.makeText(getApplicationContext(), "위치 정보를 가져오지 못 했습니다", Toast.LENGTH_SHORT).show();
         }
 
+
+
         System.out.println("weatherResponse = " + weatherResponse);
+
+
+    }
+
+    private String getWeatherTextToSpeak() {
+        StringBuilder resultBuilder = new StringBuilder();
 
         /* 말할 날씨 정보 생성 */
         if (weatherResponse != null) {
-            resultBuilder.append("                      ");
             resultBuilder.append("현재 기온은 ");
             resultBuilder.append(weatherResponse.getCurrentTemperature());
             resultBuilder.append("도입니다. ");
@@ -215,7 +260,7 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
             }
         }
 
-        return resultBuilder.toString();
+        return "                                  " + resultBuilder.toString();
     }
 
     private void fetchTodayEvents() {
@@ -254,7 +299,17 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
         speakTodayEvents();
 
         /* 날씨 받아오기 */
-        String weatherInformation = getWeatherInformation();
+        fetchWeatherInformation();
+
+        /* 날씨 정보 브로드캐스트로 전달 */
+        // 날씨 정보를 성공적으로 가져왔으면
+        if (weatherResponse != null) {
+            sendTodayWeatherByBroadcast();
+        }
+
+        /* 날씨에 관해 말할 내용 만들기 */
+        String weatherInformation = getWeatherTextToSpeak();
+
         /* 날씨 speak */
         addText(weatherInformation);
         System.out.println("whatToSay = " + whatToSay);
@@ -355,6 +410,7 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
 
         // 알림 창에 있는 알림 제거
         notificationManager.cancelAll();
+
 
 //        Toast.makeText(this, "알람을 종료했습니다.", Toast.LENGTH_SHORT).show();
         super.onDestroy();

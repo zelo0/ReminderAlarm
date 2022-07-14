@@ -20,7 +20,6 @@ import com.example.reminderalarm.data.EventCoreInfo;
 import com.example.reminderalarm.R;
 import com.example.reminderalarm.broadcastReceiver.AlarmReceiver;
 import com.example.reminderalarm.fragment.ManualAlarmDialogFragment;
-import com.example.reminderalarm.service.AlarmService;
 
 import java.text.MessageFormat;
 import java.util.Calendar;

@@ -223,7 +223,7 @@ public class CalendarEventManager {
                             + ", dtEnd: " + dtEnd + ", location: " + location + ", timezone: " + timeZone);
 */
 
-                    eventListBetweenTimes.add(new EventCoreInfo(eventId, title, description, dtStart, dtEnd, location));
+                    eventListBetweenTimes.add(new EventCoreInfo(eventId, title, dtStart, location));
 
                 }
                 cursor.close();
@@ -282,7 +282,7 @@ public class CalendarEventManager {
                             + ", description: " + description + ", dtStart: " + dtStart
                             + ", dtEnd: " + dtEnd + ", location: " + location + ", timezone: " + timeZone);
 */
-                    eventListBetweenTimes.add(new EventCoreInfo(eventId, title, description, dtStart, dtEnd, location));
+                    eventListBetweenTimes.add(new EventCoreInfo(eventId, title, dtStart, location));
 
                 }
                 cursor.close();

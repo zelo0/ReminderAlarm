@@ -47,19 +47,19 @@
                 app:srcCompat="@drawable/ic_thermostat" />
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/currentTemperature"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="TextView"
+                android:text="현재 기온"
                 />
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/minTemperature"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="TextView"
+                android:text="최저 기온"
                 android:layout_marginLeft="20dp"
                 />
 
@@ -71,11 +71,18 @@
                 app:srcCompat="@drawable/ic_arrow_down" />
 
             <TextView
-                android:id="@+id/textView3"
+                android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="TextView"
+                android:text="/" />
+
+            <TextView
+                android:id="@+id/maxTemperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="최고 기온"
                 android:layout_marginLeft="5dp"
                 />
 
@@ -87,35 +94,37 @@
                 app:srcCompat="@drawable/ic_arrow_up" />
 
             <ImageView
-                android:id="@+id/imageView7"
+                android:id="@+id/rainImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 app:srcCompat="@drawable/ic_umbrella"
+                android:visibility="invisible"
                 android:layout_marginLeft="10dp"/>
         </LinearLayout>
 
-        <ScrollView
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp">
+            android:orientation="vertical"
+            android:layout_marginTop="20dp"
+            >
 
-            <LinearLayout
+            <ImageView
+                android:id="@+id/imageView6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                app:srcCompat="@drawable/ic_today" />
 
-                <ImageView
-                    android:id="@+id/imageView6"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_today" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </LinearLayout>
-        </ScrollView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:scrollbars="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                />
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
