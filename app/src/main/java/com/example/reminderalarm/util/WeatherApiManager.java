@@ -72,7 +72,6 @@ public class WeatherApiManager extends AsyncTask<String, Void, WeatherApiManager
         try {
             String apiResponse = fetchWeatherApi(madeApiURL);
             weatherResponse = makeWeatherResponse(apiResponse, dateString, currentHourString);
-            System.out.println("weatherResponse in api manager= " + weatherResponse);
             return weatherResponse;
         } catch (IOException | JSONException e) {
             e.printStackTrace();
@@ -177,7 +176,6 @@ public class WeatherApiManager extends AsyncTask<String, Void, WeatherApiManager
         conn.disconnect();
         String apiResult = sb.toString();
 
-        Log.i("api result", apiResult);
         return apiResult;
     }
 

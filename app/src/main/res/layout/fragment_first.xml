@@ -42,7 +42,7 @@
                     android:layout_marginVertical="30dp"/>
 
 
-                <!-- 알람 설정 -->
+                <!-- 섹션 구분 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -51,6 +51,7 @@
                     android:showDividers="middle">
 
                     <!-- 매일 울리는 알람 설정 -->
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -123,8 +124,38 @@
                         </LinearLayout>
                     </LinearLayout>
 
-                </LinearLayout>
 
+                    <!-- 오늘의 일정 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        >
+
+                        <TextView
+                            android:id="@+id/textView2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="내일 일정"
+                            android:layout_marginTop="10dp"
+                            />
+
+                        <ImageView
+                            android:id="@+id/imageView3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_today"
+                            android:layout_marginBottom="10dp"
+                            />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclerViewInMain"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scrollbars="vertical"
+                            />
+                    </LinearLayout>
+                </LinearLayout>
 
             </LinearLayout>
         </ScrollView>

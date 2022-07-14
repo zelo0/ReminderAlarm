@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="현재 기온"
-                />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/minTemperature"
@@ -61,6 +61,7 @@
                 android:layout_weight="1"
                 android:text="최저 기온"
                 android:layout_marginLeft="20dp"
+                android:textStyle="bold"
                 />
 
             <ImageView
@@ -75,7 +76,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="/" />
+                android:text="/"
+                android:textStyle="bold"
+                />
 
             <TextView
                 android:id="@+id/maxTemperature"
@@ -84,6 +87,7 @@
                 android:layout_weight="1"
                 android:text="최고 기온"
                 android:layout_marginLeft="5dp"
+                android:textStyle="bold"
                 />
 
             <ImageView
@@ -122,7 +126,6 @@
                 android:scrollbars="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_gravity="center"
                 />
         </LinearLayout>
     </LinearLayout>

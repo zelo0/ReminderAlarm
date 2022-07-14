@@ -67,7 +67,6 @@ public class AlarmUtil {
         PendingIntent pendingAlarmIntent =
                 PendingIntent.getBroadcast(context, ALARM_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        System.out.println("pendingAlarmIntent in alarmUtil = " + pendingAlarmIntent);
 
 
         // 다음 알람 설정
@@ -83,7 +82,7 @@ public class AlarmUtil {
         // 예약된 알람 시간 토스트로 알려주기
         String message =
                 MessageFormat.format("다음 알람: {0}월 {1}일 {2}시 {3}분 ", calendarOfNextAlarmTime.get(Calendar.MONTH) + 1, calendarOfNextAlarmTime.get(Calendar.DAY_OF_MONTH), calendarOfNextAlarmTime.get(Calendar.HOUR_OF_DAY), calendarOfNextAlarmTime.get(Calendar.MINUTE));
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
 

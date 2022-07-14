@@ -105,7 +105,6 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
 
         /* 오늘의 일정 받아오기 */
         fetchTodayEvents();
-        System.out.println("todayEventList.size() = " + todayEventList.size());
 
         /* TTS 생성 -> 준비되면 speak */
         textToSpeech = new TextToSpeech(AlarmService.this, this);

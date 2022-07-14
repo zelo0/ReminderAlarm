@@ -19,14 +19,21 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.reminderalarm.activity.MainActivity;
+import com.example.reminderalarm.adapter.EventAdapter;
 import com.example.reminderalarm.data.AlarmTime;
+import com.example.reminderalarm.data.CalendarCoreInfo;
+import com.example.reminderalarm.data.EventCoreInfo;
 import com.example.reminderalarm.util.AlarmUtil;
 import com.example.reminderalarm.R;
 import com.example.reminderalarm.databinding.FragmentFirstBinding;
+import com.example.reminderalarm.util.CalendarEventManager;
 
 import java.util.Calendar;
+import java.util.List;
 
 public class FirstFragment extends Fragment {
 
@@ -140,16 +147,35 @@ public class FirstFragment extends Fragment {
                 updateNextAlarmText();
             }
         });
-/*
-        calendarEventManager = new CalendarEventManager(getContext().getApplicationContext());
 
-        *//* 이벤트 찾기 세트 *//*
-        // 첫 화면 진입 시 캘린더 가지는 계정 찾기
-        MainActivity mainActivity = (MainActivity) getActivity();
-        List<CalendarCoreInfo> calendarCoreInfoList = calendarEventManager.calendarQuery();
 
-        // 캘린더 가져온 후에 이벤트 가져오기
-        calendarEventManager.eventQuery(calendarCoreInfoList);*/
+
+        /* 리사이클러뷰 레이아웃 등록 */
+        RecyclerView recyclerView = binding.recyclerViewInMain;
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+
+
+        /* 내일의 일정 구하기 */
+        Calendar tomorrowStartCalendar = Calendar.getInstance();
+        tomorrowStartCalendar.add(Calendar.DAY_OF_MONTH, 1);
+        tomorrowStartCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        tomorrowStartCalendar.set(Calendar.MINUTE, 0);
+        tomorrowStartCalendar.set(Calendar.SECOND, 0);
+
+        Calendar tomorrowEndCalendar = Calendar.getInstance();
+        tomorrowEndCalendar.add(Calendar.DAY_OF_MONTH, 1);
+        tomorrowEndCalendar.set(Calendar.HOUR_OF_DAY, 23);
+        tomorrowEndCalendar.set(Calendar.MINUTE, 59);
+        tomorrowEndCalendar.set(Calendar.SECOND, 59);
+
+        CalendarEventManager calendarEventManager = new CalendarEventManager(getContext().getApplicationContext());
+        List<EventCoreInfo> allTodayEvents =
+                calendarEventManager.getAllEventsBetweenTimesAsSorted(tomorrowStartCalendar.getTimeInMillis(), tomorrowEndCalendar.getTimeInMillis());
+
+        /* 리사이클러뷰, 어댑터 연결 */
+        EventAdapter eventAdapter = new EventAdapter(allTodayEvents);
+        recyclerView.setAdapter(eventAdapter);
 
     }
 
