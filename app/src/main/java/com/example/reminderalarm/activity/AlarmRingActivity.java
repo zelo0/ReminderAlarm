@@ -42,6 +42,7 @@ public class AlarmRingActivity extends AppCompatActivity {
 
     private AlarmService mService;
     private boolean mBound = false;
+    private BroadcastReceiver weatherBroadcastReceiver;
 
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -90,65 +91,40 @@ public class AlarmRingActivity extends AppCompatActivity {
 
 
         /* 날씨 받기 */
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(AlarmService.UPDATE_EVENT_BROADCAST);
-        intentFilter.addAction(AlarmService.UPDATE_WEATHER_BROADCAST);
+        IntentFilter intentFilter = new IntentFilter(AlarmService.UPDATE_WEATHER_BROADCAST);
 
         /* 브로드캐스트 리시버 */
+        weatherBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                /* 오늘의 날씨 브로드캐스트 리시버 */
+                String currentTemperature = intent.getStringExtra(AlarmService.CURRENT_TEMPERATURE);
+                String minTemperature = intent.getStringExtra(AlarmService.MIN_TEMPERATURE);
+                String maxTemperature = intent.getStringExtra(AlarmService.MAX_TEMPERATURE);
+                boolean willRain = intent.getBooleanExtra(AlarmService.WILL_RAIN, false);
+
+                /* 텍스트뷰 내용 변경 */
+                TextView currentTemperatureView = (TextView) findViewById(R.id.currentTemperature);
+                currentTemperatureView.setText(String.format("%s℃", currentTemperature));
+
+                TextView minTemperatureView = (TextView) findViewById(R.id.minTemperature);
+                minTemperatureView.setText(String.format("%s℃", minTemperature));
+
+                TextView maxTemperatureView = (TextView) findViewById(R.id.maxTemperature);
+                maxTemperatureView.setText(String.format("%s℃", maxTemperature));
+
+                View rainImageView = findViewById(R.id.rainImage);
+                if (willRain) {
+                    rainImageView.setVisibility(View.VISIBLE);
+                } else {
+                    rainImageView.setVisibility(View.INVISIBLE);
+                }
+
+            }
+
+        };
         LocalBroadcastManager.getInstance(this).registerReceiver(
-                new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        /* 오늘의 일정 브로드캐스트 */
-                        /*if (intent.getAction().equals(AlarmService.UPDATE_EVENT_BROADCAST)) {
-                            Log.i("flag", "bradcast");
-                            String todayEventJson = intent.getStringExtra(AlarmService.TODAY_EVENTS);
-                            try {
-                                JSONArray jsonArray = new JSONArray(todayEventJson);
-                                System.out.println("jsonArray = " + jsonArray);
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    try {
-                                        EventCoreInfo event = (EventCoreInfo) jsonArray.get(i);
-                                        System.out.println("event = " + event);
-                                        showingEventList.add(event);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                            *//* 어댑터 변경 *//*
-                            eventAdapter.notifyDataSetChanged();
-                        }*/
-                        /* 오늘의 날씨 브로드캐스트 리시버 */
-                        if (intent.getAction().equals(AlarmService.UPDATE_WEATHER_BROADCAST)) {
-                            String currentTemperature = intent.getStringExtra(AlarmService.CURRENT_TEMPERATURE);
-                            String minTemperature = intent.getStringExtra(AlarmService.MIN_TEMPERATURE);
-                            String maxTemperature = intent.getStringExtra(AlarmService.MAX_TEMPERATURE);
-                            boolean willRain = intent.getBooleanExtra(AlarmService.WILL_RAIN, false);
-
-                            /* 텍스트뷰 내용 변경 */
-                            TextView currentTemperatureView = (TextView) findViewById(R.id.currentTemperature);
-                            currentTemperatureView.setText(String.format("%s℃", currentTemperature));
-
-                            TextView minTemperatureView = (TextView) findViewById(R.id.minTemperature);
-                            minTemperatureView.setText(String.format("%s℃", minTemperature));
-
-                            TextView maxTemperatureView = (TextView) findViewById(R.id.maxTemperature);
-                            maxTemperatureView.setText(String.format("%s℃", maxTemperature));
-
-                            View rainImageView =  findViewById(R.id.rainImage);
-                            if (willRain) {
-                                rainImageView.setVisibility(View.VISIBLE);
-                            } else {
-                                rainImageView.setVisibility(View.INVISIBLE);
-                            }
-                        }
-                    }
-
-                }, intentFilter
+              weatherBroadcastReceiver , intentFilter
         );
 
         Log.i("flag", "receiver enrolled");
@@ -159,7 +135,10 @@ public class AlarmRingActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
 
-//        unbindService(mConnection);
+        if (mBound) {
+            unbindService(mConnection);
+        }
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(weatherBroadcastReceiver);
     }
 
 

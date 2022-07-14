@@ -234,8 +234,6 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
 
 
 
-        System.out.println("weatherResponse = " + weatherResponse);
-
 
     }
 
