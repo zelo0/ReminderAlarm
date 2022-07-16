@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.reminderalarm.activity.MainActivity;
+import com.example.reminderalarm.activity.SettingsActivity;
 import com.example.reminderalarm.adapter.EventAdapter;
 import com.example.reminderalarm.data.AlarmTime;
 import com.example.reminderalarm.data.CalendarCoreInfo;
@@ -145,6 +146,16 @@ public class FirstFragment extends Fragment {
 
                 // 알람 예약이 끝나면 현재 예약된 알람 시간 보여주기
                 updateNextAlarmText();
+            }
+        });
+
+
+        /* 설정 버튼 클릭 리스너 */
+        binding.settingImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent startActivityIntent = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(startActivityIntent);
             }
         });
 

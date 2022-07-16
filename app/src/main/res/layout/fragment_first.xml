@@ -21,25 +21,41 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- 다음 알람 시간 안내 텍스트 -->
-                <TextView
-                    android:id="@+id/alarmInfoText"
-                    android:layout_width="match_parent"
+                <ImageView
+                    android:id="@+id/settingImage"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="알람 시간을 설정해주세요"
-                    android:textAlignment="gravity"
-                    android:textSize="20dp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="30dp"/>
+                    android:layout_gravity="right"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="30dp"
+                    android:src="@drawable/ic_baseline_settings_24" />
+
+                <!-- 다음 알람 시간 안내 텍스트 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/alarmInfoText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="30dp"
+                        android:gravity="center"
+                        android:text="알람 시간을 설정해주세요"
+                        android:textAlignment="gravity"
+                        android:textSize="20dp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/nSleepBtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="30dp"
+                        android:text="N시간 수면 시작" />
+                </LinearLayout>
 
                 <!-- 다음 알람은 N시간 수면 적용하는 버튼 -->
-                <Button
-                    android:id="@+id/nSleepBtn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="N시간 수면 시작"
-                    android:layout_marginVertical="30dp"/>
 
 
                 <!-- 섹션 구분 -->

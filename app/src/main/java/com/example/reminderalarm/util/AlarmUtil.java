@@ -1,5 +1,7 @@
 package com.example.reminderalarm.util;
 
+import static androidx.preference.PreferenceManager.*;
+
 import android.app.AlarmManager;
 import android.app.AlarmManager.AlarmClockInfo;
 import android.app.PendingIntent;
@@ -92,6 +94,7 @@ public class AlarmUtil {
     @NonNull
     public Calendar getCalendarOfNextDailyAlarmTime(int hourOfDay, int minute) {
 
+
         // 현재 시간
         Calendar calendarByNow = Calendar.getInstance(); // 기본 타임존에 먖춰서
 
@@ -166,16 +169,22 @@ public class AlarmUtil {
     // 다이얼로그를 안 띄우고 알람 설정 했으면 true, 다이얼르그를 띄워야하면 false 리턴
     public boolean setNextAlarmCheckingFirstEvent(FragmentManager fragmentManager, Calendar nextAlarmCalendar, boolean isDailyAlarmSetting) {
 
+        // 사용자가 설정한 첫 일정 전 n 시간을 반영
+        String eventBeforeHourString = sharedPref.getString(context.getString(R.string.KEY_EVENT_BASE_TIME), "0");
+        int eventBeforeHour = Integer.parseInt(eventBeforeHourString);
+
         // 알람 울리는 날의 자정 시간 갖는 캘린더
         Calendar midnightCalendar = Calendar.getInstance();
         midnightCalendar.setTimeInMillis(nextAlarmCalendar.getTimeInMillis());
-//        midnightCalendar.set(Calendar.AM_PM, Calendar.AM);
         midnightCalendar.set(Calendar.HOUR_OF_DAY, 0);
         midnightCalendar.set(Calendar.MINUTE, 0);
         midnightCalendar.set(Calendar.SECOND, 0);
 
         // 알람 울리는 날의 알람 시간 전에 시작하는 이벤트
-        EventCoreInfo firstEventFromMidnightToNextAlarm = calendarEventManager.getFirstEventFromMidnightToNextAlarm(midnightCalendar.getTimeInMillis(), nextAlarmCalendar.getTimeInMillis());
+        // 다음 알람 시간 n시간 후까지의 일정을 확인
+        long addedMilliSecond = eventBeforeHour * 60 * 60 *  1000L;
+        EventCoreInfo firstEventFromMidnightToNextAlarm = calendarEventManager.getFirstEventFromMidnightToNextAlarm(
+                midnightCalendar.getTimeInMillis(), nextAlarmCalendar.getTimeInMillis() + addedMilliSecond);
         // 존재하지 않으면 이 시간대로 알람 예약
         // 존재하면 다이얼로그 띄우기
         if (firstEventFromMidnightToNextAlarm == null) {
@@ -184,9 +193,11 @@ public class AlarmUtil {
         } else {
             /* 다이얼로그 띄우고 사용자에게 물은 후 다음 알람 예약 */
 
+
             // 첫 이벤트 시간을 갖는 캘린더
             Calendar firstEventTimeCalendar = Calendar.getInstance();
             firstEventTimeCalendar.setTimeInMillis(Long.parseLong(firstEventFromMidnightToNextAlarm.getDtStart()));
+
 
             /* 첫 이벤트 time, 원래 예약하려던 시간 을 다이얼로그에 전달 */
             Bundle bundle = new Bundle();

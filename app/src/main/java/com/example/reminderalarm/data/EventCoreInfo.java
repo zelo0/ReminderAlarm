@@ -2,7 +2,6 @@ package com.example.reminderalarm.data;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.annotations.Expose;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

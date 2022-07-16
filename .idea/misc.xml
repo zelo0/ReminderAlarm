@@ -8,6 +8,7 @@
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/drawable/ic_arrow_up.xml" value="0.2462962962962963" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/drawable/ic_launcher_background.xml" value="0.25833333333333336" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/drawable/ic_today.xml" value="0.2462962962962963" />
+        <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/drawable/ic_umbrella.xml" value="0.25" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/layout-v28/fragment_first.xml" value="0.29890453834115804" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/layout/activity_alarm_ring.xml" value="0.36614583333333334" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/layout/activity_main.xml" value="0.12916666666666668" />
@@ -19,12 +20,17 @@
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/layout/fragment_manual_alarm_dialog.xml" value="0.36614583333333334" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/layout/fragment_second.xml" value="0.12916666666666668" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/layout/manual_alarm_setting_dialog.xml" value="0.36614583333333334" />
+        <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/layout/preference.xml" value="0.25364583333333335" />
+        <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/layout/settings_activity.xml" value="0.25364583333333335" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/menu/menu_main.xml" value="0.25364583333333335" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.25833333333333336" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.25833333333333336" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/xml/authenticator.xml" value="0.20471014492753623" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/xml/network_security_config.xml" value="0.20833333333333334" />
+        <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/xml/preference.xml" value="0.25364583333333335" />
         <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/xml/prefs.xml" value="0.20471014492753623" />
+        <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/xml/root_preferences.xml" value="0.25364583333333335" />
+        <entry key="..\:/Users/minor/AndroidStudioProjects/ReminderAlarm2/app/src/main/res/xml/setting.xml" value="0.2196478220574606" />
       </map>
     </option>
   </component>

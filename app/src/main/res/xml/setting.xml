@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="알람 설정">
+
+        <Preference
+            android:defaultValue="content://settings/system/notification_sound"
+            android:key="@string/KEY_ALARM_SOUND"
+            android:title="벨소리 선택"
+            android:summary="기본 벨소리"
+            />
+
+         <SeekBarPreference
+             android:key="@string/KEY_SOUND_VOLUME"
+             android:title="알람 벨소리 크기"
+             android:max="100"
+             android:defaultValue="50"
+             android:icon="@drawable/ic_baseline_play_arrow_24"
+             />
+
+        <EditTextPreference
+            android:defaultValue="0"
+            android:key="@string/KEY_EVENT_BASE_TIME"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:dialogTitle="첫 일정이 시작하기 몇 시간 전에 일어나야 하세요?"
+            android:title="첫 일정 기준 시간"
+            android:summary="0시간"
+            />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

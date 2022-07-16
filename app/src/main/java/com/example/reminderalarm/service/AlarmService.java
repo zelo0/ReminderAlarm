@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -30,6 +31,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.PreferenceManager;
 
 import com.example.reminderalarm.R;
 import com.example.reminderalarm.activity.AlarmRingActivity;
@@ -37,7 +39,6 @@ import com.example.reminderalarm.util.CalendarEventManager;
 import com.example.reminderalarm.data.EventCoreInfo;
 import com.example.reminderalarm.util.WeatherApiManager;
 import com.example.reminderalarm.util.WeatherApiManager.WeatherResponse;
-import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -91,13 +92,19 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
         putAlarmNotification(getApplicationContext());
 
         // 알람 울릴 때 사용할 사운드
-        Uri bellUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(getApplicationContext(), RingtoneManager.TYPE_RINGTONE);
+
+        Uri alarmSoundUri = Uri.parse(sharedPreferences.getString(getString(R.string.KEY_ALARM_SOUND),
+                defaultRingtoneUri.toString() ));
 
         // mediaPlayer 생성
-        mediaPlayer = MediaPlayer.create(this, bellUri);
+        mediaPlayer = MediaPlayer.create(this, alarmSoundUri);
 
         // 재생
-        mediaPlayer.setVolume(50, 50);
+        float soundVolume = sharedPreferences.getInt(getString(R.string.KEY_SOUND_VOLUME), 50) / (float)100;
+
+        mediaPlayer.setVolume(soundVolume, soundVolume);
         mediaPlayer.setLooping(true);
         mediaPlayer.start();
 
@@ -319,6 +326,7 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
                 || result == TextToSpeech.LANG_NOT_SUPPORTED) {
             Log.e("TTS", "This Language is not supported");
         }
+
 
         textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             Handler handler = new Handler();
