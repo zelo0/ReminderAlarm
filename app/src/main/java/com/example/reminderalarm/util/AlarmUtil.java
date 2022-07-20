@@ -137,12 +137,12 @@ public class AlarmUtil {
             // 정확한 알람 설정 권한 있는 지 체크
             boolean hasAlarmPermission = alarmManager.canScheduleExactAlarms();
 
-            // 해당 권한이 없으면 설정 화면으로 이동시킴
+            // 해당 권한이 없으면 설정 화면으로 이동시킴 (정책 위반) - 알려주기만
             if (!hasAlarmPermission) {
-                Toast.makeText(context, "정확한 시간에 알람이 울리기 위해서 권한을 허가해주세요", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(intent);
+                Toast.makeText(context, "정확한 시간에 알람이 울리기 위해서 알람 권한을 허가해주세요", Toast.LENGTH_SHORT).show();
+//                Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                context.startActivity(intent);
             }
         }
     }

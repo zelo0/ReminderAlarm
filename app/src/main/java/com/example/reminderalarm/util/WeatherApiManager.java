@@ -3,7 +3,6 @@ package com.example.reminderalarm.util;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -85,20 +84,6 @@ public class WeatherApiManager extends AsyncTask<String, Void, WeatherApiManager
         return weatherResponse;
     }
 
-    /*  @Nullable
-    public WeatherResponse requestWeather(String dateString, String currentHourString, double lat, double lng) {
-        try {
-
-            String apiResult;
-
-
-
-        } catch (Exception e) {
-            System.out.println("e = " + e);
-            Toast.makeText(applicationContext, "날씨 정보를 받아올 수 없습니다", Toast.LENGTH_LONG).show();
-            return null;
-        }
-    }*/
 
     @Nullable
     private WeatherResponse makeWeatherResponse(String apiResponse, String dateString, String currentHourString) throws JSONException {
@@ -108,7 +93,6 @@ public class WeatherApiManager extends AsyncTask<String, Void, WeatherApiManager
         String resultCode = response.getJSONObject("header").getString("resultCode");
         // 응답 코드가 오류 코드면
         if (!resultCode.equals("00")) {
-            Toast.makeText(applicationContext, "날씨 정보를 받아올 수 없습니다", Toast.LENGTH_LONG).show();
             return null;
         }
 
@@ -121,31 +105,28 @@ public class WeatherApiManager extends AsyncTask<String, Void, WeatherApiManager
             JSONObject itemObject = itemArr.getJSONObject(i);
             String forecastDate = itemObject.getString("fcstDate");
             // 오늘에 대한 예보
-            // 나중에는 정확한 개수를 찾아 numOfRows로 넘겨주자
-            if (forecastDate.equals(dateString)) {
-                String category = itemObject.getString("category");
+            String category = itemObject.getString("category");
 
-                /* 최저, 최고 기온 */
-                if (category.equals("TMN")) {
-                    weatherResponse.setMinTemperature(itemObject.getString("fcstValue"));
-                } else if (category.equals("TMX")) {
-                    weatherResponse.setMaxTemperature(itemObject.getString("fcstValue"));
-                }
-
-                String fcstTime = itemObject.getString("fcstTime");
-                /* 현재 시간의 기온 */
-                if (fcstTime.equals(currentHourString) && category.equals("TMP")) {
-                    weatherResponse.setCurrentTemperature(itemObject.getString("fcstValue"));
-                }
-
-                /* 현재 시간 이후로 오늘 강수 확률이 50% 이상인 시간이 있나 확인 */
-                if (fcstTime.compareTo(currentHourString) >= 0 && category.equals("POP")) {
-                    if (Integer.parseInt(itemObject.getString("fcstValue")) >= RAIN_DROP_BASE_PERCENT) {
-                        weatherResponse.setWillRain(true);
-                    }
-                }
-
+            /* 최저, 최고 기온 */
+            if (category.equals("TMN")) {
+                weatherResponse.setMinTemperature(itemObject.getString("fcstValue"));
+            } else if (category.equals("TMX")) {
+                weatherResponse.setMaxTemperature(itemObject.getString("fcstValue"));
             }
+
+            String fcstTime = itemObject.getString("fcstTime");
+            /* 현재 시간의 기온 */
+            if (fcstTime.equals(currentHourString) && category.equals("TMP")) {
+                weatherResponse.setCurrentTemperature(itemObject.getString("fcstValue"));
+            }
+
+            /* 현재 시간 이후로 오늘 강수 확률이 50% 이상인 시간이 있나 확인 */
+            if (fcstTime.compareTo(currentHourString) >= 0 && category.equals("POP")) {
+                if (Integer.parseInt(itemObject.getString("fcstValue")) >= RAIN_DROP_BASE_PERCENT) {
+                    weatherResponse.setWillRain(true);
+                }
+            }
+
         }
 
         return weatherResponse;
@@ -190,10 +171,10 @@ public class WeatherApiManager extends AsyncTask<String, Void, WeatherApiManager
         StringBuilder urlBuilder = new StringBuilder(WEATHER_API_ENDPOINT);
         urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + URLEncoder.encode(API_KEY, "UTF-8"));
         urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")); /*페이지번호*/
-        urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode("1000", "UTF-8")); /*한 페이지 결과 수*/
+        urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode("290", "UTF-8")); /*한 페이지 결과 수 = 12(카테고리 수)*24(시간) + 2(최저, 최고 기온) */
         urlBuilder.append("&" + URLEncoder.encode("dataType", "UTF-8") + "=" + URLEncoder.encode("JSON", "UTF-8")); /*요청자료형식(XML/JSON) Default: XML*/
         urlBuilder.append("&" + URLEncoder.encode("base_date", "UTF-8") + "=" + URLEncoder.encode(dateString, "UTF-8")); /*오늘 발표*/
-        urlBuilder.append("&" + URLEncoder.encode("base_time", "UTF-8") + "=" + URLEncoder.encode("0200", "UTF-8")); /*02시 발표(정시단위) */
+        urlBuilder.append("&" + URLEncoder.encode("base_time", "UTF-8") + "=" + URLEncoder.encode("2300", "UTF-8")); /* 전날 23시 발표(정시단위) */
         urlBuilder.append("&" + URLEncoder.encode("nx", "UTF-8") + "=" + URLEncoder.encode(Integer.toString((int) latXLngY.getX()), "UTF-8")); /*예보지점의 X 좌표값*/
         urlBuilder.append("&" + URLEncoder.encode("ny", "UTF-8") + "=" + URLEncoder.encode(Integer.toString((int) latXLngY.getY()), "UTF-8")); /*예보지점의 Y 좌표값*/
 

@@ -196,7 +196,6 @@ public class FirstFragment extends Fragment {
             Toast.makeText(getContext().getApplicationContext(), "화면이 켜져있지 않을 때도 알람을 울리기 위해서는 권한을 허용해주세요", Toast.LENGTH_SHORT).show();
             Intent permissionIntent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
             permissionIntent.setData(Uri.parse("package:" + getContext().getPackageName()));
-//            permissionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getActivity().startActivity(permissionIntent);
         }
     }

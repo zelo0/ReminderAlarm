@@ -108,8 +108,6 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
         mediaPlayer.setLooping(true);
         mediaPlayer.start();
 
-        Toast.makeText(this, "ring ~ ring ~", Toast.LENGTH_SHORT).show();
-
         /* 오늘의 일정 받아오기 */
         fetchTodayEvents();
 
@@ -193,8 +191,9 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
 
         /* 요구하는 패턴의 문자열로 변환 */
         Date date = new Date();
-        SimpleDateFormat todayDateFormat = new SimpleDateFormat("yyyyMMdd");
-        String todayDateString = todayDateFormat.format(date);
+        Date yesterday = new Date(date.getTime() - 24 * 60 * 60 * 1000);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        String yesterdayDateString = dateFormat.format(yesterday);
 
         SimpleDateFormat hourFormat = new SimpleDateFormat("HH00");
         String currentHourString = hourFormat.format(date);
@@ -219,7 +218,7 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
 
         if (lastKnownLocationByNetwork != null) {
             /* 날씨 api에 정보 요청 */
-            WeatherApiManager weatherApiManager = new WeatherApiManager(getApplicationContext(), todayDateString,
+            WeatherApiManager weatherApiManager = new WeatherApiManager(getApplicationContext(), yesterdayDateString,
                     currentHourString, lastKnownLocationByNetwork.getLatitude(), lastKnownLocationByNetwork.getLongitude());
             try {
                 weatherApiManager.execute().get();

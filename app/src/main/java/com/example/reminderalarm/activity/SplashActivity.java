@@ -1,8 +1,10 @@
 package com.example.reminderalarm.activity;
 
+import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -10,11 +12,18 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.AttributeSet;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.reminderalarm.R;
 import com.example.reminderalarm.activity.MainActivity;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -28,16 +37,17 @@ public class SplashActivity extends AppCompatActivity {
 //            Manifest.permission.SCHEDULE_EXACT_ALARM,
     };
 
+    private Snackbar snackbar;
+
 
     // 모든 퍼미션이 허가되었는 지 확인
-    private boolean hasAllPermissions(Context context, String... permissions) {
-        if (context != null && permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PERMISSION_GRANTED) {
-                    return false;
-                }
+    private boolean hasAllPermissions(int[] grantResults) {
+        for (int grantResult : grantResults) {
+            if (grantResult == PERMISSION_DENIED) {
+                return false;
             }
         }
+
         return true;
     }
 
@@ -45,33 +55,46 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (hasAllPermissions(this, permissions)) {
+
+        if (hasAllPermissions(grantResults)) {
             startActivity(new Intent(this, MainActivity.class));
             finish();
         } else {
-            Toast.makeText(this, "앱의 정상적인 작동을 위해서는 접근 권한 허용이 필요합니다. 다시 실행 후 권한을 허용해주세요", Toast.LENGTH_SHORT).show();
+            // 앱의 권한 설정 페이지로 이동하게 해주는 스낵바
+            snackbar.show();
         }
     }
 
     // 런타임 때 퍼미션 확인, 요청하는 함수
     private void checkPermissions(String... permissions) {
+
         ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
 
-        /*
-        if (!hasAllPermissions(this, permissions)) {
-            ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
-        } else {
-            // SCHEDULE_EXACT_ALARM 제외하고 모두 권한이 승인됐을 때만 메인 액티비티 실행
-            startActivity(new Intent(this, MainActivity.class));
-        }*/
     }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
 
+        // 권한 설정 화면으로 이동하게 해주는 스낵바 생성
+        snackbar = Snackbar.make(findViewById(android.R.id.content), "앱의 원활한 사용을 위해 모든 권한을 허가히주세요", Snackbar.LENGTH_INDEFINITE)
+                .setAction("이동", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", getPackageName(), null);
+                        intent.setData(uri);
+                        startActivity(intent);
+                    }
+                });
+    }
+
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         // 런타임 권한 요청
         checkPermissions(PERMISSIONS);
     }
