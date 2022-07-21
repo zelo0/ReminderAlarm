@@ -16,7 +16,7 @@
             android:id="@+id/clock"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:format24Hour="hh:mm"
+            android:format24Hour="HH:mm"
             android:format12Hour="hh:mm"
             android:textAlignment="center"
             android:textSize="100dp"
@@ -32,79 +32,106 @@
             android:text="알람 종료" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginTop="30dp"
             >
 
-            <ImageView
-                android:id="@+id/imageView2"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/ic_thermostat" />
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/currentTemperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="현재 기온"
-                android:textStyle="bold" />
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ic_thermostat" />
 
-            <TextView
-                android:id="@+id/minTemperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="최저 기온"
-                android:layout_marginLeft="20dp"
-                android:textStyle="bold"
-                />
+                <TextView
+                    android:id="@+id/currentTemperature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="현재 기온"
+                    android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/imageView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/ic_arrow_down" />
+                <TextView
+                    android:id="@+id/minTemperature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_weight="1"
+                    android:text="최저 기온"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="/"
-                android:textStyle="bold"
-                />
+                <ImageView
+                    android:id="@+id/imageView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ic_arrow_down" />
 
-            <TextView
-                android:id="@+id/maxTemperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="최고 기온"
-                android:layout_marginLeft="5dp"
-                android:textStyle="bold"
-                />
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="/"
+                    android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/imageView5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/ic_arrow_up" />
+                <TextView
+                    android:id="@+id/maxTemperature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:text="최고 기온"
+                    android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/rainImage"
+                <ImageView
+                    android:id="@+id/imageView5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ic_arrow_up" />
+
+                <ImageView
+                    android:id="@+id/rainImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="1"
+                    android:visibility="invisible"
+                    app:srcCompat="@drawable/ic_umbrella" />
+            </LinearLayout>
+
+            <!-- 기상청 정보 고지 -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/ic_umbrella"
-                android:visibility="invisible"
-                android:layout_marginLeft="10dp"/>
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/imageView7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ic_twotone_info_24"
+                    android:layout_marginRight="5dp"
+                    />
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="기상청 제공" />
+            </LinearLayout>
         </LinearLayout>
 
 

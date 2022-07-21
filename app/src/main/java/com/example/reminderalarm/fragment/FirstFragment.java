@@ -193,7 +193,7 @@ public class FirstFragment extends Fragment {
     private void checkBatteryOptimizationPermission() {
         PowerManager powerManager = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
         if (!powerManager.isIgnoringBatteryOptimizations(getActivity().getPackageName())) {
-            Toast.makeText(getContext().getApplicationContext(), "화면이 켜져있지 않을 때도 알람을 울리기 위해서는 권한을 허용해주세요", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext().getApplicationContext(), "화면이 켜져있지 않을 때도 알람을 울리기 위해서는 권한을 허용해주세요", Toast.LENGTH_LONG).show();
             Intent permissionIntent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
             permissionIntent.setData(Uri.parse("package:" + getContext().getPackageName()));
             getActivity().startActivity(permissionIntent);

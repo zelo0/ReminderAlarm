@@ -234,7 +234,7 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
 
         } else {
             // 위치 정보를 못 가져온 상황
-            Toast.makeText(getApplicationContext(), "위치 정보를 가져오지 못 했습니다", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "위치 정보를 가져오지 못 했습니다", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -290,7 +290,7 @@ public class AlarmService extends Service implements TextToSpeech.OnInitListener
     @Override
     public void onInit(int status) {
         if (status != TextToSpeech.SUCCESS) {
-            Toast.makeText(getApplicationContext(), "TTS에 문제가 있습니다", Toast.LENGTH_LONG).show();
+//            Toast.makeText(getApplicationContext(), "TTS에 문제가 있습니다", Toast.LENGTH_LONG).show();
             return;
         }
 
